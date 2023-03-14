@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net35;net40;netcoreapp3.1;net5.0</TargetFrameworks>
+    <RootNamespace>JetBrains.HabitatDetector.Tests</RootNamespace>
+    <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
+    <IsPackable>false</IsPackable>
+    <LangVersion>latestmajor</LangVersion>
+    <Company>JetBrains s.r.o.</Company>
+    <Copyright>Copyright © 2021-$([System.DateTime]::Now.ToString('yyyy')) JetBrains s.r.o.</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+    <ProjectReference Include="..\src\JetBrains.HabitatDetector.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../data/elf/*" LinkBase="Resources\Elf" />
+    <EmbeddedResource Include="../../data/os-release/*" LinkBase="Resources\OsRelease" />
+  </ItemGroup>
+</Project>
