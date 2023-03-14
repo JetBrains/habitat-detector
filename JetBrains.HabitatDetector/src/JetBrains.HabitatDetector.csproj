@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net20;net35;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <RootNamespace>JetBrains.HabitatDetector</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <LangVersion>latestmajor</LangVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Company>JetBrains s.r.o.</Company>
+    <Copyright>Copyright © 2019-$([System.DateTime]::Now.ToString('yyyy')) JetBrains s.r.o.</Copyright>
+    <Authors>Mikhail Pilin</Authors>
+    <Description>The cross-platform open-source library for detecting habitat information.</Description>
+    <PackageReleaseNotes>Supported OSs:
+    • Windows 7 x86/x64 and later, Windows 11 x86/x64/arm64 and later
+    • macOS 10.12 Sierra x64 and later, macOS 11.0 Big Sur x64/arm64 and later
+    • Linux Glibc/Musl x64/arm/arm64 (most desktop distributions like Alpine, CentOS, Debian, Fedora, Ubuntu and derivatives)
+Supported frameworks:
+    • .NET Framework 2.0 and later
+    • .NET Core 1.1 and later
+    • .NET 5.0 and later</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/JetBrains/habitat-detector</RepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>jetbrains habitat detect windows linux macos netstandard netframework</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Version>1.0.0-preview1</Version>
+  </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="JetBrains.FormatRipper" Version="2.0.0" />
+      <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
+    </ItemGroup>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+        <_Parameter1>$(AssemblyName).Tests, PublicKey=0024000004800000140100000602000000240000525341310008000001000100a5aa55ba4ae186e6c7c4150f967c469d7ac4ec76c72ed2f324acd82cb83243df8fe2fa08de3b5fe1260fe7f7439d8c9aa087fd77f5f7f177ce8361c91ae493ac23835634f99cc6d698b2cf6d3da125230b467c594611cb5dc6707fac0b694f0bd972613ccd3760892a9214e35f9ba2f5c90c46ff57e206463fbbd7bef3975ef4cf80f306c3bff61cbd098c8ca04eae9fe4f901f070e31c31e6c03cb7e3339d8d56fccb89bf4a6032c40f0fb0aa7ac000c5bc0c95bb40f31ecb4a53667e451a8ba1172a8f5fe2f1f63141f2e2a672471567860983db4484bcbdb4a53dfc4815f89e0e00e903d4b4c717b3ddf9a58c1ac5b381cfd0283e32433af935c40e520da2</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+</Project>
