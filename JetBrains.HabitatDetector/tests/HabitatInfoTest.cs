@@ -132,11 +132,18 @@ namespace JetBrains.HabitatDetector.Tests
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.Platform), HabitatInfo.Platform);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessArchitecture), HabitatInfo.ProcessArchitecture);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSArchitecture), HabitatInfo.OSArchitecture);
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.LinuxLibC), HabitatInfo.LinuxLibC != null ? HabitatInfo.LinuxLibC.Value : "<null>");
 
-      Assert.IsTrue(
-        (HabitatInfo.Platform == JetPlatform.Linux && HabitatInfo.LinuxLibC != null) ||
-        (HabitatInfo.Platform != JetPlatform.Linux && HabitatInfo.LinuxLibC == null));
+      if (HabitatInfo.Platform == JetPlatform.Linux)
+      {
+        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.LinuxLibC), HabitatInfo.LinuxLibC != null ? HabitatInfo.LinuxLibC.Value : "<null>");
+        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.LinuxDistro), HabitatInfo.LinuxDistro != null ? HabitatInfo.LinuxDistro.Value : "<null>");
+        Assert.IsNotNull(HabitatInfo.LinuxLibC);
+      }
+      else
+      {
+        Assert.IsNull(HabitatInfo.LinuxLibC);
+        Assert.IsNull(HabitatInfo.LinuxDistro);
+      }
     }
   }
 }

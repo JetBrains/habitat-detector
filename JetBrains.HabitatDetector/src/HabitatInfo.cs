@@ -1,4 +1,5 @@
-﻿using JetBrains.HabitatDetector.Impl;
+﻿using System;
+using JetBrains.HabitatDetector.Impl;
 
 namespace JetBrains.HabitatDetector
 {
@@ -8,6 +9,7 @@ namespace JetBrains.HabitatDetector
     public static JetArchitecture OSArchitecture => Helper.OSArchitecture;
     public static JetArchitecture ProcessArchitecture => Helper.ProcessArchitecture;
     public static JetLinuxLibC? LinuxLibC => Helper.LinuxLibC;
+    public static JetLinuxDistro? LinuxDistro => Helper.LinuxDistro;
 
     public static JetArchitecture[] AllOrderedArchitectures => GetAllOrderedArchitecturesForOS(Platform, OSArchitecture);
 

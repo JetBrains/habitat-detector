@@ -23,28 +23,31 @@ namespace JetBrains.HabitatDetector.Impl
     internal static readonly JetArchitecture OSArchitecture;
     internal static readonly JetArchitecture ProcessArchitecture;
     internal static readonly JetLinuxLibC? LinuxLibC;
+    internal static readonly JetLinuxDistro? LinuxDistro;
 
     static Helper()
     {
 #if NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6
-      static JetArchitecture ConvertToArchitecture(Architecture architecture) => architecture switch
-        {
-          Architecture.X86 => JetArchitecture.X86,
-          Architecture.X64 => JetArchitecture.X64,
-          Architecture.Arm => JetArchitecture.Arm,
-          Architecture.Arm64 => JetArchitecture.Arm64,
-          _ => throw new PlatformNotSupportedException($"Unsupported architecture {architecture}")
-        };
-
       Platform =
-        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? JetPlatform.Windows :
+        RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? JetPlatform.Linux :
         RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? JetPlatform.MacOsX :
-        RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? JetPlatform.Linux : throw new PlatformNotSupportedException();
-      ProcessArchitecture = ConvertToArchitecture(RuntimeInformation.ProcessArchitecture);
-      OSArchitecture = ConvertToArchitecture(RuntimeInformation.OSArchitecture); 
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? JetPlatform.Windows :
+        throw new PlatformNotSupportedException();
 
-      if (Platform == JetPlatform.Linux)
-          (LinuxLibC, _) = LinuxHelper.GetElfInfo();
+      if (Platform != JetPlatform.Linux)
+      {
+        static JetArchitecture ConvertToArchitecture(Architecture architecture) => architecture switch
+          {
+            Architecture.X86 => JetArchitecture.X86,
+            Architecture.X64 => JetArchitecture.X64,
+            Architecture.Arm => JetArchitecture.Arm,
+            Architecture.Arm64 => JetArchitecture.Arm64,
+            _ => throw new PlatformNotSupportedException($"Unsupported architecture {architecture}")
+          };
+
+        ProcessArchitecture = ConvertToArchitecture(RuntimeInformation.ProcessArchitecture);
+        OSArchitecture = ConvertToArchitecture(RuntimeInformation.OSArchitecture);
+      }
 #else
       switch (Environment.OSVersion.Platform)
       {
@@ -53,8 +56,6 @@ namespace JetBrains.HabitatDetector.Impl
         switch (Platform)
         {
         case JetPlatform.Linux:
-          (LinuxLibC, ProcessArchitecture) = LinuxHelper.GetElfInfo(); // Note(ww898): Do not use `UnixHelper.KernelArchitecture` on Linux because 32-bit docker can be run on 64-bit host!!!
-          OSArchitecture = ProcessArchitecture; // Note(ww898): Normally OsArchitecture == ProcessArchitecture on Linux!!!!
           break;
         case JetPlatform.MacOsX:
           ProcessArchitecture = kernelArchitecture;
@@ -72,6 +73,14 @@ namespace JetBrains.HabitatDetector.Impl
       default: throw new PlatformNotSupportedException();
       }
 #endif
+
+      if (Platform == JetPlatform.Linux)
+      {
+        // Note(ww898): Do not use `UnixHelper.KernelArchitecture` on Linux because 32-bit docker can be run on 64-bit host!!!
+        (LinuxLibC, ProcessArchitecture) = LinuxHelper.GetElfInfo();
+        OSArchitecture = ProcessArchitecture; // Note(ww898): Normally OsArchitecture == ProcessArchitecture on Linux!!!!
+        (LinuxDistro, _) = LinuxHelper.GetOsReleaseInfo();
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using JetBrains.FormatRipper.Elf;
@@ -7,6 +8,12 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 {
   internal static class LinuxHelper
   {
+    private static readonly string[] ourOSReleaseFiles =
+      {
+        "/etc/os-release",
+        "/usr/lib/os-release"
+      };
+
     internal static ElfInfo GetElfInfo()
     {
       ElfFile elfFile;
@@ -100,6 +107,58 @@ namespace JetBrains.HabitatDetector.Impl.Linux
       throw new PlatformNotSupportedException($"Invalid ELF file class {eiClass}, endian {eiData} and architecture {eMachine}");
     }
 
+    internal static OsReleaseInfo GetOsReleaseInfo()
+    {
+      // Note(ww898): See https://www.linux.org/docs/man5/os-release.html and https://www.freedesktop.org/software/systemd/man/os-release.html
+
+      static bool IsQuotedString(string str, char ch) => str.Length >= 2 && str[0] == ch && str[str.Length - 1] == ch;
+
+      var properties = new Dictionary<string, string>();
+      foreach (var osReleaseFile in ourOSReleaseFiles)
+        if (File.Exists(osReleaseFile))
+        {
+          using var reader = File.OpenText(osReleaseFile);
+          for (string? line; (line = reader.ReadLine()) != null;)
+            if (line.Length > 0 && line[0] != '#')
+            {
+              var n = line.IndexOf('=');
+              if (n < 0)
+                continue;
+              var key = line.Substring(0, n);
+              var value = line.Substring(n + 1);
+              properties[key] = IsQuotedString(value, '\'') || IsQuotedString(value, '"')
+                ? value.Substring(1, value.Length - 2)
+                : value;
+            }
+
+          break;
+        }
+
+      if (properties.TryGetValue("ID", out var id))
+      {
+        var k = id.IndexOf('-');
+        if (k >= 0)
+          id = id.Substring(0, k);
+      }
+
+      return new OsReleaseInfo(id switch
+        {
+          "amzn" => JetLinuxDistro.Amazon,
+          "arch" => JetLinuxDistro.Arch,
+          "centos" => JetLinuxDistro.CentOS,
+          "debian" => JetLinuxDistro.Debian,
+          "fedora" => JetLinuxDistro.Fedora,
+          "kali" => JetLinuxDistro.Kali,
+          "linuxmint" => JetLinuxDistro.Mint,
+          "manjaro" => JetLinuxDistro.Manjaro,
+          "ol" => JetLinuxDistro.Oracle,
+          "opensuse" => JetLinuxDistro.OpenSUSE,
+          "rhel" => JetLinuxDistro.RHEL,
+          "ubuntu" => JetLinuxDistro.Ubuntu,
+          _ => null
+        });
+    }
+
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
     internal readonly struct ElfInfo
     {
@@ -116,6 +175,23 @@ namespace JetBrains.HabitatDetector.Impl.Linux
       {
         linuxLibC = myLinuxLibC;
         processArchitecture = myProcessArchitecture;
+      }
+    }
+
+    [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+    internal readonly struct OsReleaseInfo
+    {
+      private readonly JetLinuxDistro? myLinuxDistro;
+
+      internal OsReleaseInfo(JetLinuxDistro? linuxDistro)
+      {
+        myLinuxDistro = linuxDistro;
+      }
+
+      public void Deconstruct(out JetLinuxDistro? linuxDistro, out object? _)
+      {
+        linuxDistro = myLinuxDistro;
+        _ = default;
       }
     }
   }
