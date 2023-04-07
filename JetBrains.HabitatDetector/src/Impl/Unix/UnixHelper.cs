@@ -1,6 +1,4 @@
-﻿#if !(NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6)
-using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace JetBrains.HabitatDetector.Impl.Unix
@@ -70,24 +68,6 @@ namespace JetBrains.HabitatDetector.Impl.Unix
         _ => throw new ArgumentOutOfRangeException(nameof(platform), platform, null)
       };
 
-    [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    internal readonly struct UnameInfo
-    {
-      private readonly JetPlatform myPlatform;
-      private readonly JetArchitecture myKernelArchitecture;
-
-      internal UnameInfo(JetPlatform platform, JetArchitecture kernelArchitecture)
-      {
-        myPlatform = platform;
-        myKernelArchitecture = kernelArchitecture;
-      }
-
-      internal void Deconstruct(out JetPlatform platform, out JetArchitecture kernelArchitecture)
-      {
-        platform = myPlatform;
-        kernelArchitecture = myKernelArchitecture;
-      }
-    }
+    internal record struct UnameInfo(JetPlatform Platform, JetArchitecture KernelArchitecture);
   }
 }
-#endif

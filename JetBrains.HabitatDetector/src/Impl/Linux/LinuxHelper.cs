@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using JetBrains.FormatRipper.Elf;
 
@@ -159,40 +158,7 @@ namespace JetBrains.HabitatDetector.Impl.Linux
         });
     }
 
-    [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    internal readonly struct ElfInfo
-    {
-      private readonly JetLinuxLibC myLinuxLibC;
-      private readonly JetArchitecture myProcessArchitecture;
-
-      internal ElfInfo(JetLinuxLibC linuxLibC, JetArchitecture processArchitecture)
-      {
-        myLinuxLibC = linuxLibC;
-        myProcessArchitecture = processArchitecture;
-      }
-
-      public void Deconstruct(out JetLinuxLibC? linuxLibC, out JetArchitecture processArchitecture)
-      {
-        linuxLibC = myLinuxLibC;
-        processArchitecture = myProcessArchitecture;
-      }
-    }
-
-    [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    internal readonly struct OsReleaseInfo
-    {
-      private readonly JetLinuxDistro? myLinuxDistro;
-
-      internal OsReleaseInfo(JetLinuxDistro? linuxDistro)
-      {
-        myLinuxDistro = linuxDistro;
-      }
-
-      public void Deconstruct(out JetLinuxDistro? linuxDistro, out object? _)
-      {
-        linuxDistro = myLinuxDistro;
-        _ = default;
-      }
-    }
+    internal record struct ElfInfo(JetLinuxLibC? LinuxLibC, JetArchitecture ProcessArchitecture);
+    internal record struct OsReleaseInfo(JetLinuxDistro? LinuxDistro);
   }
 }

@@ -133,6 +133,11 @@ namespace JetBrains.HabitatDetector.Tests
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessArchitecture), HabitatInfo.ProcessArchitecture);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSArchitecture), HabitatInfo.OSArchitecture);
 
+      if (HabitatInfo.Platform == JetPlatform.Windows)
+        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsInstallationType), HabitatInfo.WindowsInstallationType != null ? HabitatInfo.WindowsInstallationType.Value : "<null>");
+      else
+        Assert.IsNull(HabitatInfo.WindowsInstallationType);
+
       if (HabitatInfo.Platform == JetPlatform.Linux)
       {
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.LinuxLibC), HabitatInfo.LinuxLibC != null ? HabitatInfo.LinuxLibC.Value : "<null>");

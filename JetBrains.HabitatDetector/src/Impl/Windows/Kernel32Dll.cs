@@ -1,5 +1,4 @@
-﻿#if !(NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6)
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
@@ -15,7 +14,7 @@ namespace JetBrains.HabitatDetector.Impl.Windows
     /// Retrieves a pseudo handle for the current process.
     /// </summary>
     /// <returns>The return value is a pseudo handle to the current process.</returns>
-    [DllImport(LibraryName, CharSet = CharSet.Unicode, PreserveSig = true, SetLastError = false, ExactSpelling = true)]
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, ExactSpelling = true)]
     internal static extern void* GetCurrentProcess();
 
     /// <summary>
@@ -32,7 +31,7 @@ namespace JetBrains.HabitatDetector.Impl.Windows
     /// For more information, see LoadLibraryEx.</param>
     /// <returns>If the function succeeds, the return value is a handle to the specified module.
     /// If the function fails, the return value is NULL. To get extended error information, call GetLastError.</returns>
-    [DllImport(LibraryName, CharSet = CharSet.Unicode, PreserveSig = true, SetLastError = true, ExactSpelling = true)]
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
     internal static extern void* GetModuleHandleW(string lpModuleName);
 
     /// <summary>
@@ -41,10 +40,10 @@ namespace JetBrains.HabitatDetector.Impl.Windows
     /// <param name="hModule">A handle to the DLL module that contains the function or variable. The LoadLibrary or GetModuleHandle function returns this handle.</param>
     /// <param name="lpProcName">The function or variable name, or the function's ordinal value. If this parameter is an ordinal value, it must be in the low-order word; the high-order word must be zero.</param>
     /// <returns>If the function succeeds, the return value is the address of the exported function or variable. If the function fails, the return value is NULL. To get extended error information, call GetLastError.</returns>
-    [DllImport(LibraryName, CharSet = CharSet.Unicode, PreserveSig = true, SetLastError = true, ExactSpelling = true)]
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
     internal static extern void* GetProcAddress(void* hModule, [MarshalAs(UnmanagedType.LPStr)] string lpProcName);
 
-    [DllImport(LibraryName, CharSet = CharSet.Unicode, PreserveSig = true, SetLastError = true, ExactSpelling = true)]
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
     internal static extern void GetSystemInfo(SYSTEM_INFO* lpSystemInfo);
 
     internal delegate void GetNativeSystemInfoDelegate(SYSTEM_INFO* lpSystemInfo);
@@ -63,7 +62,7 @@ namespace JetBrains.HabitatDetector.Impl.Windows
     /// | X86   | X86     |  0(PROCESSOR_ARCHITECTURE_INTEL) |
     /// </code>
     /// </summary>
-    [DllImport(LibraryName, CharSet = CharSet.Unicode, PreserveSig = true, SetLastError = true, ExactSpelling = true)]
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
     internal static extern void GetNativeSystemInfo(SYSTEM_INFO* lpSystemInfo);
 
     internal delegate Int32 IsWow64Process2Delegate(void* hProcess, IMAGE_FILE_MACHINE* pProcessMachine, IMAGE_FILE_MACHINE* pNativeMachine);
@@ -87,8 +86,7 @@ namespace JetBrains.HabitatDetector.Impl.Windows
     /// <param name="pProcessMachine">On success, returns a pointer to an IMAGE_FILE_MACHINE_* value. The value will be IMAGE_FILE_MACHINE_UNKNOWN if the target process is not a WOW64 process; otherwise, it will identify the type of WoW process.</param>
     /// <param name="pNativeMachine">On success, returns a pointer to a possible IMAGE_FILE_MACHINE_* value identifying the native architecture of host system.</param>
     /// <returns>If the function succeeds, the return value is a nonzero value. If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
-    [DllImport(LibraryName, CharSet = CharSet.Unicode, PreserveSig = true, SetLastError = true, ExactSpelling = true)]
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
     internal static extern Int32 IsWow64Process2(void* hProcess, IMAGE_FILE_MACHINE* pProcessMachine, IMAGE_FILE_MACHINE* pNativeMachine);
   }
 }
-#endif

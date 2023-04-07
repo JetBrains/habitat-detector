@@ -1,5 +1,4 @@
-﻿#if !(NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6)
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace JetBrains.HabitatDetector.Impl.MacOsX
@@ -47,4 +46,3 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
     internal eproc kp_eproc;
   }
 }
-#endif

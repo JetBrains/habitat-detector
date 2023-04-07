@@ -10,6 +10,7 @@ namespace JetBrains.HabitatDetector
     public static JetArchitecture ProcessArchitecture => Helper.ProcessArchitecture;
     public static JetLinuxLibC? LinuxLibC => Helper.LinuxLibC;
     public static JetLinuxDistro? LinuxDistro => Helper.LinuxDistro;
+    public static JetWindowsInstallationType? WindowsInstallationType => Helper.WindowsInstallationType;
 
     public static JetArchitecture[] AllOrderedArchitectures => GetAllOrderedArchitecturesForOS(Platform, OSArchitecture);
 

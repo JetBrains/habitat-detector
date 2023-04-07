@@ -1,4 +1,3 @@
-#if !(NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6)
 using System.Diagnostics.CodeAnalysis;
 
 namespace JetBrains.HabitatDetector.Impl.MacOsX
@@ -36,8 +35,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
     internal const int KERN_PROC_UID     = 5; // by effective uid
     internal const int KERN_PROC_RUID    = 6; // by real uid
     internal const int KERN_PROC_LCID    = 7; // by login context id
-    
+
     internal const int HW_MEMSIZE = 24; // ulong: physical ram size
   }
 }
-#endif

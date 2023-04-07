@@ -1,7 +1,6 @@
-﻿#if !(NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6)
-using System;
+﻿using System;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
+using System.Text;
 
 namespace JetBrains.HabitatDetector.Impl.Windows
 {
@@ -24,7 +23,7 @@ namespace JetBrains.HabitatDetector.Impl.Windows
         if (pIsWow64Process2 != null)
         {
 #pragma warning disable CS0618
-          var isWow64Process2 = (Kernel32Dll.IsWow64Process2Delegate)Marshal.GetDelegateForFunctionPointer((IntPtr)pIsWow64Process2, typeof(Kernel32Dll.IsWow64Process2Delegate));
+          var isWow64Process2 = (Kernel32Dll.IsWow64Process2Delegate)System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer((IntPtr)pIsWow64Process2, typeof(Kernel32Dll.IsWow64Process2Delegate));
 #pragma warning restore CS0618
 
           IMAGE_FILE_MACHINE processImageFileMachine, nativeImageFileMachine;
@@ -37,7 +36,7 @@ namespace JetBrains.HabitatDetector.Impl.Windows
         if (pGetNativeSystemInfo != null)
         {
 #pragma warning disable CS0618
-          var getNativeSystemInfo = (Kernel32Dll.GetNativeSystemInfoDelegate)Marshal.GetDelegateForFunctionPointer((IntPtr)pGetNativeSystemInfo, typeof(Kernel32Dll.GetNativeSystemInfoDelegate));
+          var getNativeSystemInfo = (Kernel32Dll.GetNativeSystemInfoDelegate)System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer((IntPtr)pGetNativeSystemInfo, typeof(Kernel32Dll.GetNativeSystemInfoDelegate));
 #pragma warning restore CS0618
 
           SYSTEM_INFO nativeSystemInfo;
@@ -68,6 +67,77 @@ namespace JetBrains.HabitatDetector.Impl.Windows
         IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64 => JetArchitecture.Arm64,
         _ => throw new PlatformNotSupportedException($"Unsupported machine identifier {imageFileMachine}")
       };
+
+    internal static unsafe JetWindowsInstallationType? GetInstallationType()
+    {
+      // Note(ww898): 32-bits processes should access 64-bits registry because correct data only in it! See https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-key-security-and-access-rights
+      var (type, data) = GetRegValue(HKEY.HKEY_LOCAL_MACHINE, @"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType", KeyAccessRights.KEY_WOW64_64KEY);
+      return type == REG.REG_SZ && data != null
+        ? GetRegValueString(data) switch
+          {
+            "Client" => JetWindowsInstallationType.Client,
+            "Nano Server" => JetWindowsInstallationType.NanoServer,
+            "Server Core" => JetWindowsInstallationType.ServerCore,
+            "Server" => JetWindowsInstallationType.Server,
+            _ => null
+          }
+        : null;
+    }
+
+    private static string GetRegValueString(byte[] data)
+    {
+      var chars = Encoding.Unicode.GetChars(data);
+      var n = 0;
+      while (n < chars.Length && chars[n] != '\0')
+        ++n;
+      return new string(chars, 0, n);
+    }
+
+    private record struct RegQueryData(REG Type, byte[]? Data);
+
+    private static unsafe RegQueryData GetRegValue(void* hKey, string path, string valueName, KeyAccessRights samDesired = 0)
+    {
+      void* hSubKey;
+      var error = Advapi32Dll.RegOpenKeyExW(hKey, path, 0, (uint)(KeyAccessRights.KEY_QUERY_VALUE | samDesired), &hSubKey);
+      switch (error)
+      {
+      case WinError.ERROR_SUCCESS: break;
+      case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
+      default: throw new Win32Exception(error);
+      }
+
+      try
+      {
+        while (true)
+        {
+          REG dwType;
+          uint cbData;
+          error = Advapi32Dll.RegQueryValueExW(hSubKey, valueName, null, &dwType, null, &cbData);
+          switch (error)
+          {
+          case WinError.ERROR_SUCCESS: break;
+          case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
+          default: throw new Win32Exception(error);
+          }
+
+          var data = new byte[cbData];
+          if (cbData == 0)
+            return new(dwType, data);
+          fixed (byte* pdata = data)
+            error = Advapi32Dll.RegQueryValueExW(hSubKey, valueName, null, &dwType, pdata, &cbData);
+          switch (error)
+          {
+          case WinError.ERROR_SUCCESS: return new(dwType, data);
+          case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
+          case WinError.ERROR_MORE_DATA: continue;
+          default: throw new Win32Exception(error);
+          }
+        }
+      }
+      finally
+      {
+        Advapi32Dll.RegCloseKey(hSubKey);
+      }
+    }
   }
 }
-#endif
