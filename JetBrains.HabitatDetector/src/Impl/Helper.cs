@@ -26,12 +26,7 @@ namespace JetBrains.HabitatDetector.Impl
 
 #elif NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6
       var isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-      var clrImplementation =
-        System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework", StringComparison.OrdinalIgnoreCase) ? JetClrImplementation.NetFramework :
-        System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Core", StringComparison.OrdinalIgnoreCase) ? JetClrImplementation.NetCore :
-        System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Native", StringComparison.OrdinalIgnoreCase) ? JetClrImplementation.NetCore :
-        System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET", StringComparison.OrdinalIgnoreCase) ? JetClrImplementation.Net :
-        throw new PlatformNotSupportedException("Unsupported CLR implementation");
+      var isNetCore = !System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework", StringComparison.OrdinalIgnoreCase);
 #else
       var isWindows = Environment.OSVersion.Platform switch
         {
@@ -39,10 +34,7 @@ namespace JetBrains.HabitatDetector.Impl
           PlatformID.Win32NT => true,
           _ => throw new PlatformNotSupportedException($"Unsupported platform identifier {Environment.OSVersion.Platform}")
         };
-      var clrImplementation =
-        Environment.Version.Major >= 5 ? JetClrImplementation.Net :
-        typeof(object).Assembly.FullName.StartsWith("System.Private.CoreLib", StringComparison.Ordinal) ? JetClrImplementation.NetCore :
-        JetClrImplementation.NetFramework;
+      var isNetCore = typeof(object).Assembly.FullName.StartsWith("System.Private.CoreLib", StringComparison.Ordinal);
 #endif
 
       if (isWindows)
@@ -79,7 +71,7 @@ namespace JetBrains.HabitatDetector.Impl
         }
       }
 
-      ClrImplementation = Type.GetType("Mono.Runtime") != null ? JetClrImplementation.Mono : clrImplementation;
+      ClrImplementation = Type.GetType("Mono.Runtime") != null ? JetClrImplementation.Mono : isNetCore ? JetClrImplementation.NetCore : JetClrImplementation.NetFramework;
     }
 
     internal static unsafe JetArchitecture GetProcessArchitecture(int processId) => Platform switch

@@ -131,7 +131,6 @@ namespace JetBrains.HabitatDetector.Tests
     }
 
     [TestCase(JetClrImplementation.Mono, "Mono")]
-    [TestCase(JetClrImplementation.Net, ".NET")]
     [TestCase(JetClrImplementation.NetCore, ".NET Core")]
     [TestCase(JetClrImplementation.NetFramework, ".NET Framework")]
     [Test]
@@ -173,9 +172,6 @@ namespace JetBrains.HabitatDetector.Tests
 
       Assert.AreEqual(HabitatInfo.ProcessArchitecture, HabitatInfo.GetProcessArchitecture(Process.GetCurrentProcess()));
       Assert.AreEqual(HabitatInfo.ProcessArchitecture, HabitatInfo.GetProcessArchitecture(Process.GetCurrentProcess().Id));
-
-      if (Environment.Version.Major >= 5)
-        Assert.AreEqual(JetClrImplementation.Net, HabitatInfo.ClrImplementation);
 
       if (HabitatInfo.Platform == JetPlatform.Windows)
       {

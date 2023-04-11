@@ -61,7 +61,6 @@ namespace JetBrains.HabitatDetector
       return clrImplementation switch
         {
           JetClrImplementation.Mono => "Mono",
-          JetClrImplementation.Net => ".NET",
           JetClrImplementation.NetCore => ".NET Core",
           JetClrImplementation.NetFramework => ".NET Framework",
           _ => throw new ArgumentOutOfRangeException(nameof(clrImplementation), clrImplementation, null)
