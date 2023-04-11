@@ -59,6 +59,7 @@ namespace JetBrains.HabitatDetector
         case "ol"        : return JetUnixId.Oracle;
         case "opensuse"  : return JetUnixId.OpenSUSE;
         case "rhel"      : return JetUnixId.RHEL;
+        case "sles"      : return JetUnixId.SLES;
         case "ubuntu"    : return JetUnixId.Ubuntu;
         // @formatter:on
         }

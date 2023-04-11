@@ -19,6 +19,7 @@ namespace JetBrains.HabitatDetector
     OpenSUSE,
     Oracle,
     RHEL,
-    Ubuntu
+    SLES,
+    Ubuntu,
   }
 }

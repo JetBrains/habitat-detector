@@ -17,6 +17,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase("opensuse-42.3"     , "opensuse"     , "42.3"  , "openSUSE Leap 42.3"                  , JetUnixId.OpenSUSE)]
     [TestCase("opensuse-leap-15.1", "opensuse-leap", "15.1"  , "openSUSE Leap 15.1"                  , JetUnixId.OpenSUSE)]
     [TestCase("rhel-8.4"          , "rhel"         , "8.4"   , "Red Hat Enterprise Linux 8.4 (Ootpa)", JetUnixId.RHEL)]
+    [TestCase("sles-15.4"         , "sles"         , "15.4"  , "SUSE Linux Enterprise Server 15 SP4" , JetUnixId.SLES)]
     [TestCase("ubuntu-22.04"      , "ubuntu"       , "22.04" , "Ubuntu 22.04.2 LTS"                  , JetUnixId.Ubuntu)]
     [TestCase("xxx"               , "ol'"          , "qwe"   , "asd"                                 , null)]
     // @formatter:on
@@ -31,7 +32,7 @@ namespace JetBrains.HabitatDetector.Tests
       Assert.AreEqual(expectedId, properties.TryGetValue(OsReleaseProperties.IdKey));
       Assert.AreEqual(expectedVersionId, properties.TryGetValue(OsReleaseProperties.VersionIdKey));
       Assert.AreEqual(expectedPrettyName, properties.TryGetValue(OsReleaseProperties.PrettyNameKey));
-      
+
       Assert.AreEqual(expectedUnixId, properties.TryGetUnixId());
     }
   }
