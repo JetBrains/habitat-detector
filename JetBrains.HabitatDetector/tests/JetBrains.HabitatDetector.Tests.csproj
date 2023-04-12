@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netcoreapp3.1;net5.0;net7.0</TargetFrameworks>
     <RootNamespace>JetBrains.HabitatDetector.Tests</RootNamespace>
     <Nullable>enable</Nullable>
     <SignAssembly>true</SignAssembly>
