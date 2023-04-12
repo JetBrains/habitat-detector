@@ -66,6 +66,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
             "aarch64" => JetArchitecture.Arm64,
             "armv7l" or "armv8l" => JetArchitecture.Arm,
             "i686" => JetArchitecture.X86,
+            "s390x" => JetArchitecture.S390x,
             "x86_64" => JetArchitecture.X64,
             _ => throw new ArgumentOutOfRangeException(nameof(machine), machine, null)
           },
