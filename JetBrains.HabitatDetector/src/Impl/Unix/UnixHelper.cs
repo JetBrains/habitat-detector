@@ -27,13 +27,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
 
         var sysname = Marshal.PtrToStringAnsi(buf) ?? throw new NullReferenceException();
         var platform = ConvertToPlatform(sysname);
-        var nameLen = platform switch
-          {
-            JetPlatform.FreeBSD => 32,
-            JetPlatform.Linux => 65,
-            JetPlatform.MacOsX => 256,
-            _ => throw new PlatformNotSupportedException()
-          };
+        var nameLen = ConvertToNameLength(platform);
         const int machineIndex = 4;
         var machine = Marshal.PtrToStringAnsi((nint)buf + machineIndex * nameLen) ?? throw new NullReferenceException();
         return new UnameInfo(platform, ConvertToArchitecture(platform, machine));
@@ -45,7 +39,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
       }
     }
 
-    private static JetPlatform ConvertToPlatform(string sysname) => sysname switch
+    internal static JetPlatform ConvertToPlatform(string sysname) => sysname switch
       {
         "Darwin" => JetPlatform.MacOsX,
         "FreeBSD" => JetPlatform.FreeBSD,
@@ -53,7 +47,15 @@ namespace JetBrains.HabitatDetector.Impl.Unix
         _ => throw new PlatformNotSupportedException($"Unknown sysname {sysname}")
       };
 
-    private static JetArchitecture ConvertToArchitecture(JetPlatform platform, string machine) => platform switch
+    internal static int ConvertToNameLength(JetPlatform platform) => platform switch
+      {
+        JetPlatform.FreeBSD => 32,
+        JetPlatform.Linux => 65,
+        JetPlatform.MacOsX => 256,
+        _ => throw new PlatformNotSupportedException()
+      };
+
+    internal static JetArchitecture ConvertToArchitecture(JetPlatform platform, string machine) => platform switch
       {
         JetPlatform.FreeBSD => machine switch
           {
@@ -67,6 +69,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
             "armv7l" or "armv8l" => JetArchitecture.Arm,
             "i686" => JetArchitecture.X86,
             "loongarch64" => JetArchitecture.LoongArch64,
+            "ppc64le" => JetArchitecture.Ppc64le,
             "s390x" => JetArchitecture.S390x,
             "x86_64" => JetArchitecture.X64,
             _ => throw new ArgumentOutOfRangeException(nameof(machine), machine, null)
