@@ -22,12 +22,13 @@
 Supported frameworks:
     • .NET Framework 2.0 and later
     • .NET Core 1.1 and later
-    • .NET 5.0 and later</PackageReleaseNotes>
+    • .NET 5.0 and later
+    • Mono 5.10 and later</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/JetBrains/habitat-detector</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>jetbrains habitat detect windows linux macos freebsd netstandard netframework</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.FormatRipper" Version="2.0.1" />
