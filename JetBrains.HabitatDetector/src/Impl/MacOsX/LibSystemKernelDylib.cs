@@ -9,7 +9,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
   {
     private const string LibraryName = "/usr/lib/system/libsystem_kernel.dylib";
 
-    [DllImport(LibraryName)]
+    [DllImport(LibraryName, ExactSpelling = true)]
     internal static extern int getpid();
   }
 }

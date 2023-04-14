@@ -7,7 +7,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
   {
     private const string LibraryName = "libc"; // Note: No extension here, because CoreCLR support that case
 
-    [DllImport(LibraryName, SetLastError = true)]
+    [DllImport(LibraryName, SetLastError = true, ExactSpelling = true)]
     internal static extern int uname(IntPtr buf);
   }
 }
