@@ -42,8 +42,8 @@ namespace JetBrains.HabitatDetector.Impl.Windows
       return ConvertToArchitecture(systemInfo.wProcessorArchitecture);
     }
 
-    internal unsafe delegate TResult OpenProcessDelegate<out TResult>(void* hProcess); 
-    
+    internal unsafe delegate TResult OpenProcessDelegate<out TResult>(void* hProcess);
+
     internal static unsafe JetArchitecture OpenProcess(int processId, OpenProcessDelegate<JetArchitecture> action)
     {
       var hProcess = Kernel32Dll.OpenProcess((uint)ProcessAccessRights.PROCESS_QUERY_LIMITED_INFORMATION, 0, unchecked((uint)processId));
@@ -67,7 +67,8 @@ namespace JetBrains.HabitatDetector.Impl.Windows
         if (ourGetProcessInformation(hProcess, PROCESS_INFORMATION_CLASS.ProcessMachineTypeInfo, &pmi, (uint)sizeof(PROCESS_MACHINE_INFORMATION)) == 0)
         {
           // Note(ww898): PROCESS_INFORMATION_CLASS.ProcessMachineTypeInfo can be not yet implemented. Available since Windows 10.0 Build 22000.
-          var error = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+          // Bug(ww898): System.Runtime.InteropServices.Marshal.GetLastWin32Error() under Mono always return 127 here, because no `SetLastError = true` for delegates instead of `DllImportAttribute`!!!
+          var error = Kernel32Dll.GetLastError();
           if (error != WinError.ERROR_INVALID_PARAMETER)
             throw new Win32Exception(error);
         }
@@ -79,8 +80,9 @@ namespace JetBrains.HabitatDetector.Impl.Windows
       {
         // Bug(ww898): We can't detect X64 processes on ARM64 OS here!!!
         IMAGE_FILE_MACHINE processImageFileMachine, nativeImageFileMachine;
+        // Bug(ww898): System.Runtime.InteropServices.Marshal.GetLastWin32Error() under Mono always return 127 here, because no `SetLastError = true` for delegates instead of `DllImportAttribute`!!!
         if (ourIsWow64Process2(hProcess, &processImageFileMachine, &nativeImageFileMachine) == 0)
-          throw new Win32Exception();
+          throw new Win32Exception(Kernel32Dll.GetLastError());
         return ConvertToArchitecture(processImageFileMachine == IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN
           ? nativeImageFileMachine
           : processImageFileMachine);
@@ -89,8 +91,9 @@ namespace JetBrains.HabitatDetector.Impl.Windows
       if (ourIsWow64Process != null)
       {
         int isWow64;
+        // Bug(ww898): System.Runtime.InteropServices.Marshal.GetLastWin32Error() under Mono always return 127 here, because no `SetLastError = true` for delegates instead of `DllImportAttribute`!!!
         if (ourIsWow64Process(hProcess, &isWow64) == 0)
-          throw new Win32Exception();
+          throw new Win32Exception(Kernel32Dll.GetLastError());
         if (isWow64 != 0)
           return JetArchitecture.X86;
 

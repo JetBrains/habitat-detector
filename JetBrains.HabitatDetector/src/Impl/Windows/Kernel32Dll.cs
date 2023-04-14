@@ -10,6 +10,9 @@ namespace JetBrains.HabitatDetector.Impl.Windows
     internal const string LibraryName = "kernel32.dll";
 
     [DllImport(LibraryName, CharSet = CharSet.Unicode, ExactSpelling = true)]
+    internal static extern int GetLastError();
+
+    [DllImport(LibraryName, CharSet = CharSet.Unicode, ExactSpelling = true)]
     internal static extern void* GetCurrentProcess();
 
     [DllImport(LibraryName, CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
