@@ -166,6 +166,12 @@ namespace JetBrains.HabitatDetector.Tests
     public void CurrentTest()
     {
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ClrImplementation), HabitatInfo.ClrImplementation);
+
+      if (HabitatInfo.ClrImplementation == JetClrImplementation.Mono)
+        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.MonoVersion), HabitatInfo.MonoVersion?.ToString() ?? "<null>");
+      else
+        Assert.IsNull(HabitatInfo.MonoVersion);
+
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.Platform), HabitatInfo.Platform);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessArchitecture), HabitatInfo.ProcessArchitecture);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSArchitecture), HabitatInfo.OSArchitecture);

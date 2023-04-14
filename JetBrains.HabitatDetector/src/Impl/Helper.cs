@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.HabitatDetector.Impl.Linux;
 using JetBrains.HabitatDetector.Impl.MacOsX;
 using JetBrains.HabitatDetector.Impl.Unix;
@@ -10,6 +11,7 @@ namespace JetBrains.HabitatDetector.Impl
   internal static class Helper
   {
     internal static readonly JetClrImplementation ClrImplementation;
+    internal static readonly Version? MonoVersion;
     internal static readonly JetPlatform Platform;
     internal static readonly JetArchitecture OSArchitecture;
     internal static readonly JetArchitecture ProcessArchitecture;
@@ -71,7 +73,35 @@ namespace JetBrains.HabitatDetector.Impl
         }
       }
 
-      ClrImplementation = Type.GetType("Mono.Runtime") != null ? JetClrImplementation.Mono : isNetCore ? JetClrImplementation.NetCore : JetClrImplementation.NetFramework;
+      var monoRuntimeType = Type.GetType("Mono.Runtime");
+      if (monoRuntimeType != null)
+      {
+#if !(NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6)
+        var displayNameInfo = monoRuntimeType.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+        if (displayNameInfo != null)
+        {
+          var displayNameStr = (string)displayNameInfo.Invoke(null, null);
+          var n = displayNameStr.IndexOf(' ');
+          var versionStr = n >= 0 ? displayNameStr.Substring(0, n) : displayNameStr;
+
+#if NET20 || NET30 || NET35
+          try
+          {
+            MonoVersion = new Version(versionStr);
+          }
+          catch
+          {
+          }
+#else
+          Version.TryParse(versionStr, out MonoVersion);
+#endif
+        }
+#endif
+
+        ClrImplementation = JetClrImplementation.Mono;
+      }
+      else
+        ClrImplementation = isNetCore ? JetClrImplementation.NetCore : JetClrImplementation.NetFramework;
     }
 
     internal static unsafe JetArchitecture GetProcessArchitecture(int processId) => Platform switch

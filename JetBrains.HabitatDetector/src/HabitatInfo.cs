@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.HabitatDetector.Impl;
 
@@ -8,6 +9,7 @@ namespace JetBrains.HabitatDetector
   public static partial class HabitatInfo
   {
     public static JetClrImplementation ClrImplementation => Helper.ClrImplementation;
+    public static Version? MonoVersion => Helper.MonoVersion;
     public static JetPlatform Platform => Helper.Platform;
     public static JetArchitecture OSArchitecture => Helper.OSArchitecture;
     public static JetArchitecture ProcessArchitecture => Helper.ProcessArchitecture;
