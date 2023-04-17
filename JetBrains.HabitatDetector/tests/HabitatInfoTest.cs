@@ -198,6 +198,9 @@ namespace JetBrains.HabitatDetector.Tests
         Assert.IsNull(HabitatInfo.WindowsElevationType);
       }
 
+      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessRuntimeIdString), HabitatInfo.ProcessRuntimeIdString);
+      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSRuntimeIdString), HabitatInfo.OSRuntimeIdString);
+
       if (HabitatInfo.Platform == JetPlatform.Linux)
       {
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.LinuxLibC), HabitatInfo.LinuxLibC?.ToString() ?? "<null>");

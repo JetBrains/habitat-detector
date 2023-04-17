@@ -5,6 +5,9 @@ namespace JetBrains.HabitatDetector
 {
   public static partial class HabitatInfo
   {
+    public static string OSRuntimeIdString => GetRuntimeIdString(Platform, OSArchitecture, LinuxLibC);
+    public static string ProcessRuntimeIdString => GetRuntimeIdString(Platform, ProcessArchitecture, LinuxLibC);
+
     public static string GetRuntimeIdName(JetPlatform platform)
     {
       return platform switch
