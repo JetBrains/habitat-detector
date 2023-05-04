@@ -92,7 +92,7 @@ namespace JetBrains.HabitatDetector
           JetArchitecture.Arm64 => "ARM64", // ARM64, Aarch64, Advanced RISC Machine 64-bit
           JetArchitecture.S390x => "S/390x", // S/390x, s390x, z/Architecture
           JetArchitecture.LoongArch64 => "LA64", // LA64, LoongArch64, LoongArch 64-bit
-          JetArchitecture.Ppc64le => "PowerPC64 (LE)", // PowerPC 64-bit little-endian
+          JetArchitecture.Ppc64le => "PPC64LE", // ppc64le, PowerPC 64-bit little-endian
           _ => throw new ArgumentOutOfRangeException(nameof(architecture), architecture, null)
         };
     }

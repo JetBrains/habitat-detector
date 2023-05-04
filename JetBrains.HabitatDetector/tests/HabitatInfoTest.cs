@@ -155,7 +155,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase(JetArchitecture.Arm64, "ARM64")]
     [TestCase(JetArchitecture.S390x, "S/390x")]
     [TestCase(JetArchitecture.LoongArch64, "LA64")]
-    [TestCase(JetArchitecture.Ppc64le, "PowerPC64 (LE)")]
+    [TestCase(JetArchitecture.Ppc64le, "PPC64LE")]
     [Test]
     public void ArchitecturePresentableTest(JetArchitecture architecture, string expectedName)
     {
