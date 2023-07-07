@@ -1,13 +1,15 @@
-name: net
+name: Build and run tests
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  build-and-tests:
+  net:
+    name: .NET
 
     strategy:
       fail-fast: false
@@ -28,17 +30,18 @@ jobs:
             7.0.x
       - name: Restore
         run: dotnet restore
-      - name: Build and Tests
+      - name: Build and run tests
         run: dotnet test --configuration Release --no-restore --verbosity normal --logger 'trx;LogFilePrefix=test-results'
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results-${{ matrix.os }}
+          name: net-test-results-${{ matrix.os }}
           path: ${{ github.workspace }}/**/tests/TestResults/*
           if-no-files-found: error
 
-  build-and-tests-qemu:
+  net-qemu:
+    name: .NET QEMU
 
     strategy:
       fail-fast: false
@@ -64,6 +67,6 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results-qemu-${{ matrix.arch }}
+          name: net-test-results-qemu-${{ matrix.arch }}
           path: ${{ github.workspace }}/**/tests/TestResults/*
           if-no-files-found: error
