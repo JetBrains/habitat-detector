@@ -147,33 +147,16 @@ namespace JetBrains.HabitatDetector.Impl.Windows
           throw new Win32Exception();
         try
         {
-          var ntAuthority = SID_IDENTIFIER_AUTHORITY.SECURITY_NT_AUTHORITY;
-          void* administratorsGroupSid;
-          if (Advapi32Dll.AllocateAndInitializeSid(
-                &ntAuthority,
-                2,
-                RID.SECURITY_BUILTIN_DOMAIN_RID,
-                RID.DOMAIN_ALIAS_RID_ADMINS,
-                0, 0, 0, 0, 0, 0,
-                &administratorsGroupSid) == 0)
-            throw new Win32Exception();
-          try
-          {
-            int isMember;
-            if (Advapi32Dll.CheckTokenMembership(hImpersonationToken, administratorsGroupSid, &isMember) == 0)
-              throw new Win32Exception();
-            return new(isMember != 0, te.TokenIsElevated != 0, tet switch
+          return new(
+            IsBuildInGroupMember(hImpersonationToken, RID.DOMAIN_ALIAS_RID_ADMINS),
+            te.TokenIsElevated != 0,
+            tet switch
               {
                 TOKEN_ELEVATION_TYPE.TokenElevationTypeDefault => JetWindowsTokenElevationType.Default,
                 TOKEN_ELEVATION_TYPE.TokenElevationTypeFull => JetWindowsTokenElevationType.Full,
                 TOKEN_ELEVATION_TYPE.TokenElevationTypeLimited => JetWindowsTokenElevationType.Limited,
                 _ => throw new ArgumentOutOfRangeException()
               });
-          }
-          finally
-          {
-            Advapi32Dll.FreeSid(administratorsGroupSid);
-          }
         }
         finally
         {
@@ -183,6 +166,31 @@ namespace JetBrains.HabitatDetector.Impl.Windows
       finally
       {
         Kernel32Dll.CloseHandle(hToken);
+      }
+    }
+
+    private static unsafe bool IsBuildInGroupMember(void* hToken, uint domainAliasRid)
+    {
+      var ntAuthority = SID_IDENTIFIER_AUTHORITY.SECURITY_NT_AUTHORITY;
+      void* groupSid;
+      if (Advapi32Dll.AllocateAndInitializeSid(
+            &ntAuthority,
+            2,
+            RID.SECURITY_BUILTIN_DOMAIN_RID,
+            domainAliasRid,
+            0, 0, 0, 0, 0, 0,
+            &groupSid) == 0)
+        throw new Win32Exception();
+      try
+      {
+        int isMember;
+        if (Advapi32Dll.CheckTokenMembership(hToken, groupSid, &isMember) == 0)
+          throw new Win32Exception();
+        return isMember != 0;
+      }
+      finally
+      {
+        Advapi32Dll.FreeSid(groupSid);
       }
     }
 
