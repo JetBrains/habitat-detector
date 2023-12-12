@@ -1,7 +1,6 @@
 name: Build and run tests
 
 on:
-  workflow_dispatch:
   push:
     branches: [ master ]
   pull_request:
@@ -70,3 +69,34 @@ jobs:
           name: net-test-results-qemu-${{ matrix.arch }}
           path: ${{ github.workspace }}/**/tests/TestResults/*
           if-no-files-found: error
+
+  net-self-hosted:
+    name: .NET SelfHosted
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: s390x
+
+    runs-on:
+      - self-hosted
+      - ${{ matrix.os }}
+      - ${{ matrix.arch }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Restore
+        run: dotnet restore
+      - name: Build and Tests
+        run: dotnet test -f net7.0 --configuration Release --no-restore --verbosity normal --logger 'trx;LogFilePrefix=test-results'
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: net-test-results-self-hosted-${{ matrix.os }}-${{ matrix.arch }}
+          path: ${{ github.workspace }}/**/tests/TestResults/*
+          if-no-files-found: error
+
