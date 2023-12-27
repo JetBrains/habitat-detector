@@ -79,6 +79,8 @@ jobs:
         include:
           - os: linux
             arch: s390x
+          - os: freebsd
+            arch: amd64
 
     runs-on:
       - self-hosted
@@ -99,4 +101,3 @@ jobs:
           name: net-test-results-self-hosted-${{ matrix.os }}-${{ matrix.arch }}
           path: ${{ github.workspace }}/**/tests/TestResults/*
           if-no-files-found: error
-
