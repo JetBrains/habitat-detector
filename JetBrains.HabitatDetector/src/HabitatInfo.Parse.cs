@@ -26,6 +26,7 @@
       case "arm64"      : architecture = JetArchitecture.Arm64      ; return true;
       case "loongarch64": architecture = JetArchitecture.LoongArch64; return true;
       case "ppc64le"    : architecture = JetArchitecture.Ppc64le    ; return true;
+      case "riscv64"    : architecture = JetArchitecture.RiscV64    ; return true;
       case "s390x"      : architecture = JetArchitecture.S390x      ; return true;
       case "x64"        : architecture = JetArchitecture.X64        ; return true;
       case "x86"        : architecture = JetArchitecture.X86        ; return true;

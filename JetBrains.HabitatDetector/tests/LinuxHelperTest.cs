@@ -13,6 +13,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase(JetArchitecture.Arm64      , ELFCLASS.ELFCLASS64, ELFDATA.ELFDATA2LSB, EM.EM_AARCH64)]
     [TestCase(JetArchitecture.LoongArch64, ELFCLASS.ELFCLASS64, ELFDATA.ELFDATA2LSB, EM.EM_LOONGARCH)]
     [TestCase(JetArchitecture.Ppc64le    , ELFCLASS.ELFCLASS64, ELFDATA.ELFDATA2LSB, EM.EM_PPC64)]
+    [TestCase(JetArchitecture.RiscV64    , ELFCLASS.ELFCLASS64, ELFDATA.ELFDATA2LSB, EM.EM_RISCV)]
     [TestCase(JetArchitecture.S390x      , ELFCLASS.ELFCLASS64, ELFDATA.ELFDATA2MSB, EM.EM_S390)]
     [TestCase(JetArchitecture.X64        , ELFCLASS.ELFCLASS64, ELFDATA.ELFDATA2LSB, EM.EM_X86_64)]
     [TestCase(JetArchitecture.X86        , ELFCLASS.ELFCLASS32, ELFDATA.ELFDATA2LSB, EM.EM_386)]
@@ -72,6 +73,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase("busybox.alpine-s390x"    , JetArchitecture.S390x  , JetLinuxLibC.Musl)]
     [TestCase("coreutils.nixos-aarch64" , JetArchitecture.Arm64  , JetLinuxLibC.Glibc)]
     [TestCase("coreutils.nixos-x86_64"  , JetArchitecture.X64    , JetLinuxLibC.Glibc)]
+    [TestCase("mktemp.ubuntu-riscv64"   , JetArchitecture.RiscV64, JetLinuxLibC.Glibc)]
     [TestCase("nologin.opensuse-ppc64le", JetArchitecture.Ppc64le, JetLinuxLibC.Glibc)]
     // @formatter:on
     [Test]

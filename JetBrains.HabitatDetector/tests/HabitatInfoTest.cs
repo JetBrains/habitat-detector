@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 
 namespace JetBrains.HabitatDetector.Tests
@@ -23,6 +24,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase(JetArchitecture.Arm64, "arm64")]
     [TestCase(JetArchitecture.LoongArch64, "loongarch64")]
     [TestCase(JetArchitecture.Ppc64le, "ppc64le")]
+    [TestCase(JetArchitecture.RiscV64, "riscv64")]
     [TestCase(JetArchitecture.S390x, "s390x")]
     [TestCase(JetArchitecture.X64, "x64")]
     [TestCase(JetArchitecture.X86, "x86")]
@@ -61,6 +63,8 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase(JetPlatform.Linux, JetArchitecture.LoongArch64, JetLinuxLibC.Glibc, "linux-loongarch64")]
     [TestCase(JetPlatform.Linux, JetArchitecture.Ppc64le, JetLinuxLibC.Glibc, "linux-ppc64le")]
     [TestCase(JetPlatform.Linux, JetArchitecture.Ppc64le, JetLinuxLibC.Musl, "linux-musl-ppc64le")]
+    [TestCase(JetPlatform.Linux, JetArchitecture.RiscV64, JetLinuxLibC.Glibc, "linux-riscv64")]
+    [TestCase(JetPlatform.Linux, JetArchitecture.RiscV64, JetLinuxLibC.Musl, "linux-musl-riscv64")]
     [TestCase(JetPlatform.Linux, JetArchitecture.S390x, JetLinuxLibC.Glibc, "linux-s390x")]
     [TestCase(JetPlatform.Linux, JetArchitecture.S390x, JetLinuxLibC.Musl, "linux-musl-s390x")]
     [TestCase(JetPlatform.Linux, JetArchitecture.X64, JetLinuxLibC.Glibc, "linux-x64")]
@@ -119,6 +123,10 @@ namespace JetBrains.HabitatDetector.Tests
 
       Check(JetPlatform.Linux, JetArchitecture.Arm, JetArchitecture.Arm);
       Check(JetPlatform.Linux, JetArchitecture.Arm64, JetArchitecture.Arm64);
+      Check(JetPlatform.Linux, JetArchitecture.LoongArch64, JetArchitecture.LoongArch64);
+      Check(JetPlatform.Linux, JetArchitecture.Ppc64le, JetArchitecture.Ppc64le);
+      Check(JetPlatform.Linux, JetArchitecture.RiscV64, JetArchitecture.RiscV64);
+      Check(JetPlatform.Linux, JetArchitecture.S390x, JetArchitecture.S390x);
       Check(JetPlatform.Linux, JetArchitecture.X64, JetArchitecture.X64);
       Check(JetPlatform.Linux, JetArchitecture.X86, JetArchitecture.X86);
 
@@ -149,16 +157,23 @@ namespace JetBrains.HabitatDetector.Tests
       Assert.AreEqual(expectedName, HabitatInfo.GetPresentableString(platform));
     }
 
-    [TestCase(JetArchitecture.X86, "x86")]
-    [TestCase(JetArchitecture.X64, "x64")]
     [TestCase(JetArchitecture.Arm, "ARM")]
     [TestCase(JetArchitecture.Arm64, "ARM64")]
-    [TestCase(JetArchitecture.S390x, "S/390x")]
     [TestCase(JetArchitecture.LoongArch64, "LA64")]
     [TestCase(JetArchitecture.Ppc64le, "PPC64LE")]
+    [TestCase(JetArchitecture.RiscV64, "RISC-V64")]
+    [TestCase(JetArchitecture.S390x, "S/390x")]
+    [TestCase(JetArchitecture.X64, "x64")]
+    [TestCase(JetArchitecture.X86, "x86")]
     [Test]
     public void ArchitecturePresentableTest(JetArchitecture architecture, string expectedName)
     {
+      Assert.IsTrue(expectedName.All(ch => ch is
+        '/' or
+        '-' or
+        >= 'a' and <= 'z' or
+        >= 'A' and <= 'Z' or
+        >= '0' and <= '9'));
       Assert.AreEqual(expectedName, HabitatInfo.GetPresentableString(architecture));
     }
 

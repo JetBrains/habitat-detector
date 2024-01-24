@@ -15,6 +15,7 @@ namespace JetBrains.HabitatDetector
     Arm64 = 3,
     S390x = 5,
     LoongArch64 = 6,
-    Ppc64le = 8
+    Ppc64le = 8,
+    RiscV64 = 9
   }
 }

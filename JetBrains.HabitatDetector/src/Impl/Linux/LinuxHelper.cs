@@ -92,6 +92,7 @@ namespace JetBrains.HabitatDetector.Impl.Linux
         case EM.EM_AARCH64: return JetArchitecture.Arm64;
         case EM.EM_LOONGARCH: return JetArchitecture.LoongArch64;
         case EM.EM_PPC64: return JetArchitecture.Ppc64le;
+        case EM.EM_RISCV: return JetArchitecture.RiscV64;
         case EM.EM_X86_64: return JetArchitecture.X64;
         }
       else if (eiClass == ELFCLASS.ELFCLASS64 && eiData == ELFDATA.ELFDATA2MSB)
