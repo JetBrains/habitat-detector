@@ -19,9 +19,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             3.1.x
@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install QEMU static executables formats
         run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup .NET SDK, Restore, Build and Tests under QEMU ${{ matrix.arch }}
@@ -89,7 +89,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Restore
         run: dotnet restore
       - name: Build and Tests
