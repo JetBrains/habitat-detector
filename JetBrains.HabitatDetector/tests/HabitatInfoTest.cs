@@ -180,6 +180,7 @@ namespace JetBrains.HabitatDetector.Tests
     [Test]
     public void CurrentTest()
     {
+      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSName), HabitatInfo.OSName);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ClrImplementation), HabitatInfo.ClrImplementation);
 
       if (HabitatInfo.ClrImplementation == JetClrImplementation.Mono)
@@ -196,11 +197,13 @@ namespace JetBrains.HabitatDetector.Tests
 
       if (HabitatInfo.Platform == JetPlatform.Windows)
       {
+        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsBuildNumber), HabitatInfo.WindowsBuildNumber?.ToString() ?? "<null>");
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsInstallationType), HabitatInfo.WindowsInstallationType?.ToString() ?? "<null>");
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsIsUserAdministrator), HabitatInfo.WindowsIsUserAdministrator?.ToString() ?? "<null>");
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsIsElevated), HabitatInfo.WindowsIsElevated?.ToString() ?? "<null>");
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsElevationType), HabitatInfo.WindowsElevationType?.ToString() ?? "<null>");
 
+        Assert.IsNotNull(HabitatInfo.WindowsBuildNumber);
         Assert.IsNotNull(HabitatInfo.WindowsIsUserAdministrator);
         Assert.IsNotNull(HabitatInfo.WindowsIsElevated);
         Assert.IsNotNull(HabitatInfo.WindowsElevationType);
@@ -230,6 +233,7 @@ namespace JetBrains.HabitatDetector.Tests
         Assert.IsNotNull(properties);
 
         Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.IdKey         + ']', properties!.TryGetValue(OsReleaseProperties.IdKey        ) ?? "<null>");
+        Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.NameKey       + ']', properties!.TryGetValue(OsReleaseProperties.NameKey      ) ?? "<null>");
         Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.VersionIdKey  + ']', properties!.TryGetValue(OsReleaseProperties.VersionIdKey ) ?? "<null>");
         Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.PrettyNameKey + ']', properties!.TryGetValue(OsReleaseProperties.PrettyNameKey) ?? "<null>");
 

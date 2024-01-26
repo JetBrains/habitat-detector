@@ -5,6 +5,7 @@
     Client,
     NanoServer,
     Server,
-    ServerCore
+    ServerCore,
+    IoTCore
   }
 }

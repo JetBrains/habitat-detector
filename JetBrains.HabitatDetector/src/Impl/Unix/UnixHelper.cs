@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace JetBrains.HabitatDetector.Impl.Unix
 {
   internal static class UnixHelper
   {
+    internal record struct UnameInfo(JetPlatform Platform, string Sysname, string Release, JetArchitecture Architecture);
+
     internal static UnameInfo GetUnameInfo()
     {
       var buf = IntPtr.Zero;
@@ -19,18 +22,20 @@ namespace JetBrains.HabitatDetector.Impl.Unix
         //   char version[NAMELEN or SYS_NMLN];
         //   char machine[NAMELEN or SYS_NMLN];
         // };
+        const int releaseIndex = 2;
+        const int machineIndex = 4;
 
         buf = Marshal.AllocHGlobal(8192);
         var rc = LibC.uname(buf);
         if (rc != 0)
-          throw new Exception("uname() from libc returned " + rc);
+          throw new Exception("uname() from LibC returned " + rc);
 
         var sysname = Marshal.PtrToStringAnsi(buf) ?? throw new NullReferenceException();
         var platform = ConvertToPlatform(sysname);
         var nameLen = ConvertToNameLength(platform);
-        const int machineIndex = 4;
+        var release = Marshal.PtrToStringAnsi((nint)buf + releaseIndex * nameLen) ?? throw new NullReferenceException();
         var machine = Marshal.PtrToStringAnsi((nint)buf + machineIndex * nameLen) ?? throw new NullReferenceException();
-        return new UnameInfo(platform, ConvertToArchitecture(platform, machine));
+        return new UnameInfo(platform, sysname, release, ConvertToArchitecture(platform, machine));
       }
       finally
       {
@@ -44,7 +49,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
         "Darwin" => JetPlatform.MacOsX,
         "FreeBSD" => JetPlatform.FreeBSD,
         "Linux" => JetPlatform.Linux,
-        _ => throw new PlatformNotSupportedException($"Unknown sysname {sysname}")
+        _ => throw new ArgumentOutOfRangeException(nameof(sysname), sysname, null)
       };
 
     internal static int ConvertToNameLength(JetPlatform platform) => platform switch
@@ -52,7 +57,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
         JetPlatform.FreeBSD => 32,
         JetPlatform.Linux => 65,
         JetPlatform.MacOsX => 256,
-        _ => throw new PlatformNotSupportedException()
+        _ => throw new ArgumentOutOfRangeException(nameof(platform), platform, null)
       };
 
     internal static JetArchitecture ConvertToArchitecture(JetPlatform platform, string machine) => platform switch
@@ -84,6 +89,30 @@ namespace JetBrains.HabitatDetector.Impl.Unix
         _ => throw new ArgumentOutOfRangeException(nameof(platform), platform, null)
       };
 
-    internal record struct UnameInfo(JetPlatform Platform, JetArchitecture KernelArchitecture);
+    internal static string GetOSName(JetPlatform platform, string unameSysname, string unameRelease)
+    {
+      var properties = OsReleaseProperties.ReadFromDefaultLocations();
+      var builder = new StringBuilder();
+
+      {
+        var prettyName = properties?.TryGetValue(OsReleaseProperties.PrettyNameKey);
+        if (prettyName != null)
+          builder.Append(prettyName);
+        else
+        {
+          var name = properties?.TryGetValue(OsReleaseProperties.NameKey);
+          builder.Append(name ?? unameSysname);
+
+          var version = properties?.TryGetValue(OsReleaseProperties.VersionKey);
+          if (version != null)
+            builder.Append(' ').Append(version);
+        }
+      }
+
+      if (platform == JetPlatform.Linux)
+        builder.Append(' ').Append(unameRelease);
+
+      return builder.ToString();
+    }
   }
 }

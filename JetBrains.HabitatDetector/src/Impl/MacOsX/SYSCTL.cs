@@ -26,6 +26,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
     internal const int KERN_PROC      = 14; // struct: process entries
     internal const int KERN_PROCARGS  = 38;
     internal const int KERN_PROCARGS2 = 49;
+    internal const int KERN_OSVERSION = 65;
 
     internal const int KERN_PROC_ALL     = 0; // everything
     internal const int KERN_PROC_PID     = 1; // by process id

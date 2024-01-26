@@ -16,6 +16,8 @@ namespace JetBrains.HabitatDetector.Impl
     internal static readonly JetArchitecture OSArchitecture;
     internal static readonly JetArchitecture ProcessArchitecture;
     internal static readonly JetLinuxLibC? LinuxLibC;
+    internal static readonly string OSName;
+    internal static readonly uint? WindowsBuildNumber;
     internal static readonly JetWindowsInstallationType? WindowsInstallationType;
     internal static readonly bool? WindowsIsUserAdministrator;
     internal static readonly bool? WindowsIsElevated;
@@ -44,30 +46,33 @@ namespace JetBrains.HabitatDetector.Impl
         Platform = JetPlatform.Windows;
         ProcessArchitecture = WindowsHelper.GetProcessArchitecture();
         OSArchitecture = WindowsHelper.GetOSArchitecture();
-        WindowsInstallationType = WindowsHelper.GetInstallationType();
 #pragma warning disable CS8624
+        (OSName, WindowsBuildNumber, WindowsInstallationType) = WindowsHelper.GetOSInfo();
         (WindowsIsUserAdministrator, WindowsIsElevated, WindowsElevationType) = WindowsHelper.GetElevation();
 #pragma warning restore CS8624
       }
       else
       {
-        (Platform, var kernelArchitecture) = UnixHelper.GetUnameInfo();
+        (Platform, var unameSysname, var unameRelease, var unameArchitecture) = UnixHelper.GetUnameInfo();
         switch (Platform)
         {
         case JetPlatform.FreeBSD:
-          ProcessArchitecture = kernelArchitecture;
-          OSArchitecture = kernelArchitecture;
+          ProcessArchitecture = unameArchitecture;
+          OSArchitecture = unameArchitecture;
+          OSName = UnixHelper.GetOSName(Platform, unameSysname, unameRelease);
           break;
         case JetPlatform.Linux:
-          // Note(ww898): Do not use `UnixHelper.KernelArchitecture` on Linux because 32-bit docker can be run on 64-bit host!!!
+          // Note(ww898): Do not use `unameArchitecture` on Linux because 32-bit docker can be run on 64-bit host!!!
 #pragma warning disable CS8624
           (LinuxLibC, ProcessArchitecture) = LinuxHelper.GetElfInfo();
 #pragma warning restore CS8624
           OSArchitecture = ProcessArchitecture; // Note(ww898): Normally OsArchitecture == ProcessArchitecture on Linux!!!!
+          OSName = UnixHelper.GetOSName(Platform, unameSysname, unameRelease);
           break;
         case JetPlatform.MacOsX:
-          ProcessArchitecture = kernelArchitecture;
-          OSArchitecture = MacOsHelper.GetRunningUnderRosetta2() ? JetArchitecture.Arm64 : kernelArchitecture; // Note(ww898): Process under Rosetta2 works only on ARM64 host!
+          ProcessArchitecture = unameArchitecture;
+          OSArchitecture = MacOsHelper.GetRunningUnderRosetta2() ? JetArchitecture.Arm64 : unameArchitecture; // Note(ww898): Process under Rosetta2 works only on ARM64 host!
+          OSName = MacOsHelper.GetOSName(unameArchitecture);
           break;
         default: throw new PlatformNotSupportedException($"Unsupported platform {Platform}");
         }

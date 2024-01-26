@@ -14,6 +14,8 @@ namespace JetBrains.HabitatDetector
     public static JetArchitecture OSArchitecture => Helper.OSArchitecture;
     public static JetArchitecture ProcessArchitecture => Helper.ProcessArchitecture;
     public static JetLinuxLibC? LinuxLibC => Helper.LinuxLibC;
+    public static string OSName => Helper.OSName;
+    public static uint? WindowsBuildNumber => Helper.WindowsBuildNumber;
     public static JetWindowsInstallationType? WindowsInstallationType => Helper.WindowsInstallationType;
     public static bool? WindowsIsUserAdministrator => Helper.WindowsIsUserAdministrator;
     public static bool? WindowsIsElevated => Helper.WindowsIsElevated;

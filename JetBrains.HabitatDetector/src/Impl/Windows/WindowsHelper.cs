@@ -1,40 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace JetBrains.HabitatDetector.Impl.Windows
 {
   internal static class WindowsHelper
   {
-    private static readonly Kernel32Dll.IsWow64ProcessDelegate? ourIsWow64Process;
-    private static readonly Kernel32Dll.IsWow64Process2Delegate? ourIsWow64Process2;
-    private static readonly Kernel32Dll.GetProcessInformationDelegate? ourGetProcessInformation;
-
-    static unsafe WindowsHelper()
-    {
-      var hKernel32Dll = Kernel32Dll.GetModuleHandleW(Kernel32Dll.LibraryName);
-      if (hKernel32Dll == null)
-        throw new Win32Exception();
-
-      var pIsWow64Process = Kernel32Dll.GetProcAddress(hKernel32Dll, nameof(Kernel32Dll.IsWow64Process));
-      if (pIsWow64Process != null)
-#pragma warning disable CS0618
-        ourIsWow64Process = (Kernel32Dll.IsWow64ProcessDelegate)System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer((IntPtr)pIsWow64Process, typeof(Kernel32Dll.IsWow64ProcessDelegate));
-#pragma warning restore CS0618
-
-      var pIsWow64Process2 = Kernel32Dll.GetProcAddress(hKernel32Dll, nameof(Kernel32Dll.IsWow64Process2));
-      if (pIsWow64Process2 != null)
-#pragma warning disable CS0618
-        ourIsWow64Process2 = (Kernel32Dll.IsWow64Process2Delegate)System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer((IntPtr)pIsWow64Process2, typeof(Kernel32Dll.IsWow64Process2Delegate));
-#pragma warning restore CS0618
-
-      var pGetProcessInformation = Kernel32Dll.GetProcAddress(hKernel32Dll, nameof(Kernel32Dll.GetProcessInformation));
-      if (pGetProcessInformation != null)
-#pragma warning disable CS0618
-        ourGetProcessInformation = (Kernel32Dll.GetProcessInformationDelegate)System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer((IntPtr)pGetProcessInformation, typeof(Kernel32Dll.GetProcessInformationDelegate));
-#pragma warning restore CS0618
-    }
-
     internal static unsafe JetArchitecture GetProcessArchitecture()
     {
       SYSTEM_INFO systemInfo;
@@ -61,10 +33,10 @@ namespace JetBrains.HabitatDetector.Impl.Windows
 
     internal static unsafe JetArchitecture GetProcessArchitecture(void* hProcess)
     {
-      if (ourGetProcessInformation != null)
+      if (WinApiCalls.GetProcessInformation != null)
       {
         PROCESS_MACHINE_INFORMATION pmi;
-        if (ourGetProcessInformation(hProcess, PROCESS_INFORMATION_CLASS.ProcessMachineTypeInfo, &pmi, (uint)sizeof(PROCESS_MACHINE_INFORMATION)) == 0)
+        if (WinApiCalls.GetProcessInformation(hProcess, PROCESS_INFORMATION_CLASS.ProcessMachineTypeInfo, &pmi, (uint)sizeof(PROCESS_MACHINE_INFORMATION)) == 0)
         {
           // Note(ww898): PROCESS_INFORMATION_CLASS.ProcessMachineTypeInfo can be not yet implemented. Available since Windows 10.0 Build 22000.
           // Bug(ww898): System.Runtime.InteropServices.Marshal.GetLastWin32Error() under Mono always return 127 here, because no `SetLastError = true` for delegates instead of `DllImportAttribute`!!!
@@ -76,23 +48,23 @@ namespace JetBrains.HabitatDetector.Impl.Windows
           return ConvertToArchitecture(pmi.ProcessMachine);
       }
 
-      if (ourIsWow64Process2 != null)
+      if (WinApiCalls.IsWow64Process2 != null)
       {
         // Bug(ww898): We can't detect X64 processes on ARM64 OS here!!!
         IMAGE_FILE_MACHINE processImageFileMachine, nativeImageFileMachine;
         // Bug(ww898): System.Runtime.InteropServices.Marshal.GetLastWin32Error() under Mono always return 127 here, because no `SetLastError = true` for delegates instead of `DllImportAttribute`!!!
-        if (ourIsWow64Process2(hProcess, &processImageFileMachine, &nativeImageFileMachine) == 0)
+        if (WinApiCalls.IsWow64Process2(hProcess, &processImageFileMachine, &nativeImageFileMachine) == 0)
           throw new Win32Exception(Kernel32Dll.GetLastError());
         return ConvertToArchitecture(processImageFileMachine == IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN
           ? nativeImageFileMachine
           : processImageFileMachine);
       }
 
-      if (ourIsWow64Process != null)
+      if (WinApiCalls.IsWow64Process != null)
       {
         int isWow64;
         // Bug(ww898): System.Runtime.InteropServices.Marshal.GetLastWin32Error() under Mono always return 127 here, because no `SetLastError = true` for delegates instead of `DllImportAttribute`!!!
-        if (ourIsWow64Process(hProcess, &isWow64) == 0)
+        if (WinApiCalls.IsWow64Process(hProcess, &isWow64) == 0)
           throw new Win32Exception(Kernel32Dll.GetLastError());
         if (isWow64 != 0)
           return JetArchitecture.X86;
@@ -109,10 +81,10 @@ namespace JetBrains.HabitatDetector.Impl.Windows
 
     internal static unsafe JetArchitecture GetOSArchitecture()
     {
-      if (ourIsWow64Process2 != null)
+      if (WinApiCalls.IsWow64Process2 != null)
       {
         IMAGE_FILE_MACHINE processImageFileMachine, nativeImageFileMachine;
-        if (ourIsWow64Process2(Kernel32Dll.GetCurrentProcess(), &processImageFileMachine, &nativeImageFileMachine) == 0)
+        if (WinApiCalls.IsWow64Process2(Kernel32Dll.GetCurrentProcess(), &processImageFileMachine, &nativeImageFileMachine) == 0)
           throw new Win32Exception();
         return ConvertToArchitecture(nativeImageFileMachine);
       }
@@ -212,75 +184,173 @@ namespace JetBrains.HabitatDetector.Impl.Windows
         _ => throw new PlatformNotSupportedException($"Unsupported machine identifier {imageFileMachine}")
       };
 
-    internal static unsafe JetWindowsInstallationType? GetInstallationType()
+    internal record struct OSInfo(string OSName, uint BuildNumber, JetWindowsInstallationType? InstallationType);
+
+    internal static string FixProductName(string productName, uint buildNumber)
+    {
+      // Windows 10:
+      //   | Build | Workstation | Server    |
+      //   +=======+=============+===========+
+      //   | 10240 |   10 1507   | --------- |
+      //   | 10586 |      1511   | --------- |
+      //   | 14393 |      1607   | 2016 1607 |
+      //   | 15063 |      1703   | --------- |
+      //   | 16299 |      1709   |      1709 |
+      //   | 17134 |      1803   |      1803 |
+      //   | 17763 |      1809   | 2019 1809 |
+      //   | 18362 |      1903   |      1903 |
+      //   | 18363 |      1909   |      1909 |
+      //   | 19041 |      2004   |      2004 |
+      //   | 19042 |      20H2   |      20H2 |
+      //   | 19043 |      21H1   | --------- |
+      //   | 19044 |      21H2   | --------- |
+      //   | 19045 |      22H2   | --------- |
+      //   | 20348 | ----------- | 2022 21H2 |
+      //   | 22000 |   11 21H2   | --------- |
+      //   | 22621 |      22H2   | --------- |
+      //   | 22631 |      23H2   | --------- |
+
+      // See https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
+
+      // Note(ww898): The `product_name` for Windows Vista has `(TM)` in name, so remove it!
+      productName = productName.Replace(" (TM)", "");
+
+      // Note(ww898): Fix OS name because we want to avoid COM WMI calls!!!
+      if (productName.IndexOf(" Server", StringComparison.Ordinal) != -1)
+      {
+        if (buildNumber >= 14393 && !Regex.IsMatch(productName, @"Server \d+"))
+          productName = productName.Replace("Server", buildNumber >= 20348 ? "Server 2022" : buildNumber >= 17763 ? "Server 2019" : "Server 2016");
+      }
+      else
+      {
+        if (buildNumber >= 22000)
+          productName = productName.Replace("Windows 10", "Windows 11");
+
+        if (buildNumber >= 10240 && !Regex.IsMatch(productName, @"Windows \d+"))
+          productName = productName.Replace("Windows", buildNumber >= 22000 ? "Windows 11" : "Windows 10");
+      }
+
+      return productName;
+    }
+
+    internal static unsafe OSInfo GetOSInfo()
     {
       // Note(ww898): 32-bits processes should access 64-bits registry because correct data only in it! See https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-key-security-and-access-rights
-      var (type, data) = GetRegValue(HKEY.HKEY_LOCAL_MACHINE, @"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType", KeyAccessRights.KEY_WOW64_64KEY);
-      return type == REG.REG_SZ && data != null
-        ? GetRegValueString(data) switch
-          {
-            "Client" => JetWindowsInstallationType.Client,
-            "Nano Server" => JetWindowsInstallationType.NanoServer,
-            "Server Core" => JetWindowsInstallationType.ServerCore,
-            "Server" => JetWindowsInstallationType.Server,
-            _ => null
-          }
-        : null;
+      return RegQueryValues(HKEY.HKEY_LOCAL_MACHINE, @"SOFTWARE\Microsoft\Windows NT\CurrentVersion", KeyAccessRights.KEY_WOW64_64KEY, query =>
+        {
+          var productName = query("ProductName").AsString();
+          var buildNumber = uint.Parse(query("CurrentBuild").AsString());
+          var installationType = query("InstallationType").AsOptionalString() switch
+            {
+              "Client" => JetWindowsInstallationType.Client,
+              "Nano Server" => JetWindowsInstallationType.NanoServer,
+              "Server Core" => JetWindowsInstallationType.ServerCore,
+              "Server" => JetWindowsInstallationType.Server,
+              "IoTCore" => JetWindowsInstallationType.IoTCore,
+              _ => (JetWindowsInstallationType?)null
+            };
+          var ubr = query("UBR").AsOptionalDWord();
+          var displayVersion = query("DisplayVersion").AsOptionalString();
+          var releaseId = query("ReleaseId").AsOptionalString();
+
+          var builder = new StringBuilder(FixProductName(productName, buildNumber));
+          if (displayVersion != null)
+            builder.Append(' ').Append(displayVersion);
+          else if (releaseId != null)
+            builder.Append(' ').Append(releaseId);
+
+          // Note(ww898): Skipped "Client", "Server" because the mention is already in 'ProductName'
+          if (installationType != null && installationType != JetWindowsInstallationType.Client && installationType != JetWindowsInstallationType.Server)
+            builder.Append(" (").Append(installationType).Append(')');
+
+          builder.Append(' ').Append(buildNumber);
+          if (ubr != null)
+            builder.Append('.').Append(ubr.Value);
+          return new OSInfo(builder.ToString(), buildNumber, installationType);
+        });
     }
 
-    private static string GetRegValueString(byte[] data)
+    private record struct RegQueryData(REG Type, byte[]? Data)
     {
-      var chars = Encoding.Unicode.GetChars(data);
-      var n = 0;
-      while (n < chars.Length && chars[n] != '\0')
-        ++n;
-      return new string(chars, 0, n);
+      public uint AsDWord()
+      {
+        if (Type != REG.REG_DWORD)
+          throw new FormatException("Expected REG_DWORD");
+        if (Data == null)
+          throw new NullReferenceException();
+        return
+          ((uint)Data[0] << 0) |
+          ((uint)Data[1] << 8) |
+          ((uint)Data[2] << 16) |
+          ((uint)Data[3] << 24);
+      }
+
+      public string AsString()
+      {
+        if (Type != REG.REG_SZ)
+          throw new FormatException("Expected REG_SZ");
+        if (Data == null)
+          throw new NullReferenceException();
+        var chars = Encoding.Unicode.GetChars(Data);
+        var n = 0;
+        while (n < chars.Length && chars[n] != '\0')
+          ++n;
+        return new string(chars, 0, n);
+      }
+
+      public uint? AsOptionalDWord() => Type == REG.REG_DWORD ? AsDWord() : null;
+      public string? AsOptionalString() => Type == REG.REG_SZ ? AsString() : null;
     }
 
-    private record struct RegQueryData(REG Type, byte[]? Data);
+    private delegate RegQueryData RegQueryValueDelegate(string valueName);
+    private delegate TResult RegQueryValuesDelegate<out TResult>(RegQueryValueDelegate query);
 
-    private static unsafe RegQueryData GetRegValue(void* hKey, string path, string valueName, KeyAccessRights samDesired = 0)
+    private static unsafe TResult? RegQueryValues<TResult>(void* hKey, string path, KeyAccessRights samDesired, RegQueryValuesDelegate<TResult> queries)
     {
       void* hSubKey;
       var error = Advapi32Dll.RegOpenKeyExW(hKey, path, 0, (uint)(KeyAccessRights.KEY_QUERY_VALUE | samDesired), &hSubKey);
       switch (error)
       {
       case WinError.ERROR_SUCCESS: break;
-      case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
+      case WinError.ERROR_FILE_NOT_FOUND: return default;
       default: throw new Win32Exception(error);
       }
+      var hSubKey2 = hSubKey;
 
       try
       {
-        while (true)
-        {
-          REG dwType;
-          uint cbData;
-          error = Advapi32Dll.RegQueryValueExW(hSubKey, valueName, null, &dwType, null, &cbData);
-          switch (error)
+        return queries(valueName =>
           {
-          case WinError.ERROR_SUCCESS: break;
-          case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
-          default: throw new Win32Exception(error);
-          }
+            while (true)
+            {
+              REG dwType;
+              uint cbData;
+              error = Advapi32Dll.RegQueryValueExW(hSubKey2, valueName, null, &dwType, null, &cbData);
+              switch (error)
+              {
+              case WinError.ERROR_SUCCESS: break;
+              case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
+              default: throw new Win32Exception(error);
+              }
 
-          var data = new byte[cbData];
-          if (cbData == 0)
-            return new(dwType, data);
-          fixed (byte* pdata = data)
-            error = Advapi32Dll.RegQueryValueExW(hSubKey, valueName, null, &dwType, pdata, &cbData);
-          switch (error)
-          {
-          case WinError.ERROR_SUCCESS: return new(dwType, data);
-          case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
-          case WinError.ERROR_MORE_DATA: continue;
-          default: throw new Win32Exception(error);
-          }
-        }
+              var data = new byte[cbData];
+              if (cbData == 0)
+                return new(dwType, data);
+              fixed (byte* pdata = data)
+                error = Advapi32Dll.RegQueryValueExW(hSubKey2, valueName, null, &dwType, pdata, &cbData);
+              switch (error)
+              {
+              case WinError.ERROR_SUCCESS: return new(dwType, data);
+              case WinError.ERROR_FILE_NOT_FOUND: return new(REG.REG_NONE, null);
+              case WinError.ERROR_MORE_DATA: continue;
+              default: throw new Win32Exception(error);
+              }
+            }
+          });
       }
       finally
       {
-        Advapi32Dll.RegCloseKey(hSubKey);
+        Advapi32Dll.RegCloseKey(hSubKey2);
       }
     }
 
