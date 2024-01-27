@@ -23,6 +23,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase(JetPlatform.Linux, "armv8l", JetArchitecture.Arm)]
     [TestCase(JetPlatform.Linux, "loongarch64", JetArchitecture.LoongArch64)]
     [TestCase(JetPlatform.Linux, "ppc64le", JetArchitecture.Ppc64le)]
+    [TestCase(JetPlatform.Linux, "riscv64", JetArchitecture.RiscV64)]
     [TestCase(JetPlatform.Linux, "s390x", JetArchitecture.S390x)]
     [TestCase(JetPlatform.Linux, "x86_64", JetArchitecture.X64)]
     [TestCase(JetPlatform.MacOsX, "arm64", JetArchitecture.Arm64)]

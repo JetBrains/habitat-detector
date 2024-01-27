@@ -70,6 +70,7 @@ namespace JetBrains.HabitatDetector.Impl.Unix
             "i686" => JetArchitecture.X86,
             "loongarch64" => JetArchitecture.LoongArch64,
             "ppc64le" => JetArchitecture.Ppc64le,
+            "riscv64" => JetArchitecture.RiscV64,
             "s390x" => JetArchitecture.S390x,
             "x86_64" => JetArchitecture.X64,
             _ => throw new ArgumentOutOfRangeException(nameof(machine), machine, null)
