@@ -1,6 +1,6 @@
 # JetBrains.HabitatDetector [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
-[![Build and run tests](https://github.com/JetBrains/platform-detector/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/JetBrains/platform-detector/actions/workflows/build-and-test.yml)
+[![Build and run tests](https://github.com/JetBrains/habitat-detector/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/JetBrains/habitat-detector/actions/workflows/build-and-test.yml)
 
 [![NuGet Badge](https://buildstats.info/nuget/JetBrains.HabitatDetector)](https://www.nuget.org/packages/JetBrains.HabitatDetector)
 
