@@ -29,7 +29,7 @@ Supported frameworks:
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>jetbrains habitat detect windows linux macos freebsd netstandard netframework</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.FormatRipper" Version="2.1.0" />
