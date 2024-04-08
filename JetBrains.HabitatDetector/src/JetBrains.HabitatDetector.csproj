@@ -17,7 +17,7 @@
     <PackageReleaseNotes>Supported OSs:
     • Windows 7 x86/x64 and later, Windows 11 x86/x64/arm64 and later
     • macOS 10.12 Sierra x64 and later, macOS 11.0 Big Sur x64/arm64 and later
-    • Linux Glibc/Musl x86/x64/arm/arm64/s390x (most desktop distributions like Alpine, CentOS, Debian, Fedora, Ubuntu and derivatives)
+    • Linux Glibc/Musl x86/x86_64/armv7l/aarch64/s390x/ppc64le/riscv64 (most desktop distributions like Alpine, CentOS, Debian, Fedora, Ubuntu and derivatives)
     • FreeBSD x64/arm64
 Supported frameworks:
     • .NET Framework 2.0 and later
@@ -29,10 +29,10 @@ Supported frameworks:
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>jetbrains habitat detect windows linux macos freebsd netstandard netframework</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.FormatRipper" Version="2.1.0" />
+    <PackageReference Include="JetBrains.FormatRipper" Version="2.2.0" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
