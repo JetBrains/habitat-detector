@@ -45,7 +45,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
       return new string(Encoding.UTF8.GetChars(buf));
     }
 
-    private static unsafe Version GetOSVersion(JetArchitecture processArchitecture)
+    internal static unsafe Version GetOSVersion(JetArchitecture processArchitecture)
     {
       var processInfo = LibObjC.objc_msgSend(LibObjC.objc_getClass("NSProcessInfo"), LibObjC.sel_getUid("processInfo"));
       var operationSystemVersionUid = LibObjC.sel_getUid("operatingSystemVersion");
@@ -73,14 +73,17 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
       }
 
       // Note(ww898): Compatibility with older software! See also SYSTEM_VERSION_COMPAT=1. Big Sur and newer OSes always returns 10.16!!!
-      return major == 10 && minor == 16
-        ? new Version(11, 0, patch)
-        : new Version(major, minor, patch);
+      if (major == 10 && minor == 16)
+      {
+        major = 11;
+        minor = 0;
+      }
+
+      return new Version(major, minor, patch);
     }
 
-    internal static string GetOSName(JetArchitecture processArchitecture)
+    internal static string GetOSName(Version version)
     {
-      var version = GetOSVersion(processArchitecture);
       var build = GetSysctlKernOsVersion();
 
       var builder = new StringBuilder(version.Major switch
@@ -114,7 +117,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
         });
 
       builder.Append(' ').Append(version.Major).Append('.').Append(version.Minor);
-      if (version.Build != 0)
+      if (version.Build > 0)
         builder.Append('.').Append(version.Build);
       if (build != null)
         builder.Append(' ').Append(build);

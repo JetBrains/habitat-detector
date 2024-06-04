@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace JetBrains.HabitatDetector.Impl.Unix
 {
+  [SuppressMessage("ReSharper", "InconsistentNaming")]
   internal static class UnixHelper
   {
     internal record struct UnameInfo(JetPlatform Platform, string Sysname, string Release, JetArchitecture Architecture);

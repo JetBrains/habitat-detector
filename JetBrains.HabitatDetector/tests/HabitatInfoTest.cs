@@ -180,11 +180,23 @@ namespace JetBrains.HabitatDetector.Tests
     [Test]
     public void CurrentTest()
     {
+      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion), Environment.OSVersion);
+      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.Platform), Environment.OSVersion.Platform);
+      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.Version), Environment.OSVersion.Version);
+      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.ServicePack), Environment.OSVersion.ServicePack);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSName), HabitatInfo.OSName);
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ClrImplementation), HabitatInfo.ClrImplementation);
 
       if (HabitatInfo.ClrImplementation == JetClrImplementation.Mono)
+      {
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.MonoVersion), HabitatInfo.MonoVersion?.ToString() ?? "<null>");
+
+        if (HabitatInfo.MonoVersion != null)
+        {
+          Assert.AreNotEqual(0, HabitatInfo.MonoVersion.Build);
+          Assert.AreEqual(-1, HabitatInfo.MonoVersion.Revision);
+        }
+      }
       else
         Assert.IsNull(HabitatInfo.MonoVersion);
 
@@ -197,6 +209,8 @@ namespace JetBrains.HabitatDetector.Tests
 
       if (HabitatInfo.Platform == JetPlatform.Windows)
       {
+        Assert.AreEqual(PlatformID.Win32NT, Environment.OSVersion.Platform);
+
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsBuildNumber), HabitatInfo.WindowsBuildNumber?.ToString() ?? "<null>");
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsInstallationType), HabitatInfo.WindowsInstallationType?.ToString() ?? "<null>");
         Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsIsUserAdministrator), HabitatInfo.WindowsIsUserAdministrator?.ToString() ?? "<null>");
@@ -207,13 +221,34 @@ namespace JetBrains.HabitatDetector.Tests
         Assert.IsNotNull(HabitatInfo.WindowsIsUserAdministrator);
         Assert.IsNotNull(HabitatInfo.WindowsIsElevated);
         Assert.IsNotNull(HabitatInfo.WindowsElevationType);
+
+        Assert.AreEqual(Environment.OSVersion.Version.Build, checked((int)HabitatInfo.WindowsBuildNumber!));
       }
       else
       {
+        Assert.AreNotEqual(PlatformID.Win32NT, Environment.OSVersion.Platform);
+
         Assert.IsNull(HabitatInfo.WindowsInstallationType);
         Assert.IsNull(HabitatInfo.WindowsIsUserAdministrator);
         Assert.IsNull(HabitatInfo.WindowsIsElevated);
         Assert.IsNull(HabitatInfo.WindowsElevationType);
+      }
+
+      if (HabitatInfo.Platform == JetPlatform.MacOsX)
+      {
+        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.MacOSVersion), HabitatInfo.MacOSVersion?.ToString() ?? "<null>");
+
+        if (HabitatInfo.MacOSVersion != null)
+        {
+          Assert.AreNotEqual(0, HabitatInfo.MacOSVersion.Build);
+          Assert.AreEqual(-1, HabitatInfo.MacOSVersion.Revision);
+        }
+        else
+          Assert.Fail();
+      }
+      else
+      {
+        Assert.IsNull(HabitatInfo.MacOSVersion);
       }
 
       Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessRuntimeIdString), HabitatInfo.ProcessRuntimeIdString);

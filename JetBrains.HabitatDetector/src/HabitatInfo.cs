@@ -6,15 +6,21 @@ using JetBrains.HabitatDetector.Impl;
 namespace JetBrains.HabitatDetector
 {
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+  [SuppressMessage("ReSharper", "InconsistentNaming")]
   public static partial class HabitatInfo
   {
-    public static JetClrImplementation ClrImplementation => Helper.ClrImplementation;
-    public static Version? MonoVersion => Helper.MonoVersion;
     public static JetPlatform Platform => Helper.Platform;
     public static JetArchitecture OSArchitecture => Helper.OSArchitecture;
     public static JetArchitecture ProcessArchitecture => Helper.ProcessArchitecture;
-    public static JetLinuxLibC? LinuxLibC => Helper.LinuxLibC;
     public static string OSName => Helper.OSName;
+
+    public static JetClrImplementation ClrImplementation => Helper.ClrImplementation;
+    public static Version? MonoVersion => Helper.MonoVersion;
+
+    public static JetLinuxLibC? LinuxLibC => Helper.LinuxLibC;
+
+    public static Version? MacOSVersion => Helper.MacOSVersion;
+
     public static uint? WindowsBuildNumber => Helper.WindowsBuildNumber;
     public static JetWindowsInstallationType? WindowsInstallationType => Helper.WindowsInstallationType;
     public static bool? WindowsIsUserAdministrator => Helper.WindowsIsUserAdministrator;

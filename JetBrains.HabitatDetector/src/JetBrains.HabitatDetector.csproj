@@ -27,9 +27,9 @@ Supported frameworks:
     • Mono 5.10 and later</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/JetBrains/habitat-detector</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageTags>jetbrains habitat detect windows linux macos freebsd netstandard netframework</PackageTags>
+    <PackageTags>jetbrains windows linux macos freebsd netstandard netframework</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.FormatRipper" Version="2.2.0" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using JetBrains.HabitatDetector.Impl.Linux;
 using JetBrains.HabitatDetector.Impl.MacOsX;
@@ -8,15 +9,21 @@ using JetBrains.HabitatDetector.Impl.Windows;
 
 namespace JetBrains.HabitatDetector.Impl
 {
+  [SuppressMessage("ReSharper", "InconsistentNaming")]
   internal static class Helper
   {
-    internal static readonly JetClrImplementation ClrImplementation;
-    internal static readonly Version? MonoVersion;
     internal static readonly JetPlatform Platform;
     internal static readonly JetArchitecture OSArchitecture;
     internal static readonly JetArchitecture ProcessArchitecture;
-    internal static readonly JetLinuxLibC? LinuxLibC;
     internal static readonly string OSName;
+
+    internal static readonly JetClrImplementation ClrImplementation;
+    internal static readonly Version? MonoVersion;
+
+    internal static readonly JetLinuxLibC? LinuxLibC;
+
+    internal static readonly Version? MacOSVersion;
+
     internal static readonly uint? WindowsBuildNumber;
     internal static readonly JetWindowsInstallationType? WindowsInstallationType;
     internal static readonly bool? WindowsIsUserAdministrator;
@@ -72,7 +79,8 @@ namespace JetBrains.HabitatDetector.Impl
         case JetPlatform.MacOsX:
           ProcessArchitecture = unameArchitecture;
           OSArchitecture = MacOsHelper.GetRunningUnderRosetta2() ? JetArchitecture.Arm64 : unameArchitecture; // Note(ww898): Process under Rosetta2 works only on ARM64 host!
-          OSName = MacOsHelper.GetOSName(unameArchitecture);
+          MacOSVersion = NormalizeVersion(MacOsHelper.GetOSVersion(unameArchitecture));
+          OSName = MacOsHelper.GetOSName(MacOSVersion);
           break;
         default: throw new PlatformNotSupportedException($"Unsupported platform {Platform}");
         }
@@ -89,17 +97,22 @@ namespace JetBrains.HabitatDetector.Impl
           var n = displayNameStr.IndexOf(' ');
           var versionStr = n >= 0 ? displayNameStr.Substring(0, n) : displayNameStr;
 
+          Version? monoVersion;
 #if NET20 || NET30 || NET35
           try
           {
-            MonoVersion = new Version(versionStr);
+            monoVersion = new Version(versionStr);
           }
           catch
           {
+            monoVersion = null;
           }
 #else
-          Version.TryParse(versionStr, out MonoVersion);
+          Version.TryParse(versionStr, out monoVersion);
 #endif
+
+          if (monoVersion != null)
+            MonoVersion = NormalizeVersion(monoVersion);
         }
 #endif
 
@@ -108,6 +121,12 @@ namespace JetBrains.HabitatDetector.Impl
       else
         ClrImplementation = isNetCore ? JetClrImplementation.NetCore : JetClrImplementation.NetFramework;
     }
+
+    internal static Version NormalizeVersion(Version version) => version.Build > 0
+      ? version.Revision == -1
+        ? version
+        : new(version.Major, version.Minor, version.Build)
+      : new(version.Major, version.Minor);
 
     internal static unsafe JetArchitecture GetProcessArchitecture(int processId) => Platform switch
       {

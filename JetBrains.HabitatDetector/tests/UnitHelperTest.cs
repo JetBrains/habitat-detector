@@ -1,4 +1,6 @@
-﻿using JetBrains.HabitatDetector.Impl.Unix;
+﻿using System;
+using JetBrains.HabitatDetector.Impl;
+using JetBrains.HabitatDetector.Impl.Unix;
 using NUnit.Framework;
 
 namespace JetBrains.HabitatDetector.Tests
@@ -30,5 +32,15 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase(JetPlatform.MacOsX, "x86_64", JetArchitecture.X64)]
     [Test]
     public void ConvertToArchitecture(JetPlatform platform, string machine, JetArchitecture expectedArchitecture) => Assert.AreEqual(expectedArchitecture, UnixHelper.ConvertToArchitecture(platform, machine));
+
+    [Test]
+    public void NormalizeTest()
+    {
+      Assert.AreEqual(new Version(11, 222), Helper.NormalizeVersion(new Version(11, 222)));
+      Assert.AreEqual(new Version(11, 222), Helper.NormalizeVersion(new Version(11, 222, 0)));
+      Assert.AreEqual(new Version(11, 222, 3333), Helper.NormalizeVersion(new Version(11, 222, 3333)));
+      Assert.AreEqual(new Version(11, 222, 3333), Helper.NormalizeVersion(new Version(11, 222, 3333, 0)));
+      Assert.AreEqual(new Version(11, 222, 3333), Helper.NormalizeVersion(new Version(11, 222, 3333, 44444)));
+    }
   }
 }

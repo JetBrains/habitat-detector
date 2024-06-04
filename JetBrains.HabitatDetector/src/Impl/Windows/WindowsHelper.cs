@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace JetBrains.HabitatDetector.Impl.Windows
 {
+  [SuppressMessage("ReSharper", "InconsistentNaming")]
   internal static class WindowsHelper
   {
     internal static unsafe JetArchitecture GetProcessArchitecture()
