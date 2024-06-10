@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using JetBrains.FormatRipper.Elf;
+using JetBrains.HabitatDetector.Impl.Unix;
 
 namespace JetBrains.HabitatDetector.Impl.Linux
 {
@@ -105,5 +110,80 @@ namespace JetBrains.HabitatDetector.Impl.Linux
     }
 
     internal record struct ElfInfo(JetLinuxLibC LinuxLibC, JetArchitecture ProcessArchitecture);
+
+    private static string? RunLddVersion()
+    {
+#if NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6
+      return null;
+#else
+      const string ldd = "/usr/bin/ldd";
+
+      // Note(ww898): We are fail on NixOS because no /usr/bin/ldd on system.
+      if (!File.Exists(ldd))
+        return null;
+
+      var builder = new StringBuilder();
+      using (var process = new Process())
+      {
+        process.StartInfo = new ProcessStartInfo(ldd, "--version")
+          {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+          };
+
+        void OnDataReceived(string? str)
+        {
+          if (str != null)
+            lock (builder)
+              builder.AppendLine(str);
+        }
+
+        process.ErrorDataReceived += (_, args) => OnDataReceived(args.Data);
+        process.OutputDataReceived += (_, args) => OnDataReceived(args.Data);
+
+        if (!process.Start())
+          throw new InvalidOperationException($"Failed to start {ldd} process");
+        process.BeginErrorReadLine();
+        process.BeginOutputReadLine();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+          throw new InvalidOperationException($"The {ldd} process failed with exit code {process.ExitCode}");
+      }
+      return builder.ToString();
+#endif
+    }
+
+    internal static Version GetGlibcApiVersion() => new(Marshal.PtrToStringAnsi(LibC.gnu_get_libc_version())!);
+
+    internal static Version? GetGlibcLddVersion()
+    {
+        var output = RunLddVersion();
+        return output != null ? ParseGlibcLddOutput(output) : null;
+    }
+
+    internal static Version? GetMuslLddVersion()
+    {
+      var output = RunLddVersion();
+      return output != null ? ParseMuslLddOutput(output) : null;
+    }
+
+    internal static Version ParseGlibcLddOutput(string output)
+    {
+      var regex = new Regex(@"^ldd\s\((GNU\slibc|.+\sGLIBC\s.+)\)\s(?<version>\d+\.\d+(\.\d+)?)\n", RegexOptions.Singleline);
+      var grp = regex.Match(output).Groups["version"];
+      if (!grp.Success)
+        throw new FormatException("Failed to parse GLibC version");
+      return new Version(grp.Captures[0].Value);
+    }
+
+    internal static Version ParseMuslLddOutput(string output)
+    {
+      var regex = new Regex(@"^musl\slibc\s\(.+\)\nVersion\s(?<version>\d+\.\d+(\.\d+)?)\n", RegexOptions.Singleline);
+      var grp = regex.Match(output).Groups["version"];
+      if (!grp.Success)
+        throw new FormatException("Failed to parse MUSL version");
+      return new Version(grp.Captures[0].Value);
+    }
   }
 }

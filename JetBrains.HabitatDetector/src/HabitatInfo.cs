@@ -18,6 +18,7 @@ namespace JetBrains.HabitatDetector
     public static Version? MonoVersion => Helper.MonoVersion;
 
     public static JetLinuxLibC? LinuxLibC => Helper.LinuxLibC;
+    public static Version? LinuxLibCVersion => Helper.LinuxLibCVersion;
 
     public static Version? MacOSVersion => Helper.MacOSVersion;
 

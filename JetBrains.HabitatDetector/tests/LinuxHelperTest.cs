@@ -83,5 +83,52 @@ namespace JetBrains.HabitatDetector.Tests
       Assert.AreEqual(expectedArchitecture, elfInfo.ProcessArchitecture);
       Assert.AreEqual(expectedLinuxLibC, elfInfo.LinuxLibC);
     }
+
+    [TestCase("ldd (GNU libc) 2.14.1\nCopyright", "2.14.1")]
+    [TestCase("ldd (GNU libc) 2.17\nCopyright", "2.17")]
+    [TestCase("ldd (GNU libc) 111.222\nCopyright", "111.222")]
+    [TestCase("ldd (GNU libc) 111.222.0\nCopyright", "111.222.0")]
+    [TestCase("ldd (GNU libc) 111.222.333\nCopyright", "111.222.333")]
+    [TestCase("ldd (Debian GLIBC 2.24-11+deb9u4) 2.24\nCopyright", "2.24")]
+    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 2.35\nCopyright", "2.35")]
+    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 111.222\nCopyright", "111.222")]
+    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 111.222.0\nCopyright", "111.222.0")]
+    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 111.222.333\nCopyright", "111.222.333")]
+    [Test]
+    public void TryParseGlibcLddOutputTest(string output, string expectedVersionStr)
+    {
+      Assert.AreEqual(new Version(expectedVersionStr), LinuxHelper.ParseGlibcLddOutput(output));
+    }
+
+    [TestCase("musl libc (x86_64)\nVersion 1.2.4\nDynamic Program Loader", "1.2.4")]
+    [TestCase("musl libc (aarch64)\nVersion 1.2.2\nDynamic Program Loader", "1.2.2")]
+    [TestCase("musl libc (s390x)\nVersion 111.222\nDynamic Program Loader", "111.222")]
+    [TestCase("musl libc (s390x)\nVersion 111.222.0\nDynamic Program Loader", "111.222.0")]
+    [TestCase("musl libc (s390x)\nVersion 111.222.333\nDynamic Program Loader", "111.222.333")]
+    [Test]
+    public void TryParseMuslLddOutputTest(string output, string expectedVersionStr)
+    {
+      Assert.AreEqual(new Version(expectedVersionStr), LinuxHelper.ParseMuslLddOutput(output));
+    }
+
+    [Platform("Linux")]
+    [Test]
+    public void ParseLibCVersionTest()
+    {
+      switch (HabitatInfo.LinuxLibC)
+      {
+      case JetLinuxLibC.Glibc:
+        var glibcApiVersion = LinuxHelper.GetGlibcApiVersion();
+        var glibcLddVersion = LinuxHelper.GetGlibcLddVersion();
+        Console.WriteLine("GlibcApiVersion: {0}", glibcApiVersion);
+        Console.WriteLine("GlibcLddVersion: {0}", glibcLddVersion?.ToString() ?? "<null>");
+        if (glibcLddVersion != null)
+          Assert.AreEqual(glibcApiVersion, glibcLddVersion);
+        break;
+      case JetLinuxLibC.Musl:
+        Console.WriteLine("MuslLddVersion: {0}", LinuxHelper.GetMuslLddVersion()?.ToString() ?? "<null>");
+        break;
+      }
+    }
   }
 }

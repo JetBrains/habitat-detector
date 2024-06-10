@@ -9,5 +9,9 @@ namespace JetBrains.HabitatDetector.Impl.Unix
 
     [DllImport(LibraryName, SetLastError = true, ExactSpelling = true)]
     internal static extern int uname(IntPtr buf);
+
+    // Valid only for Linux GNU libc
+    [DllImport(LibraryName, SetLastError = false, ExactSpelling = true)]
+    internal static extern IntPtr gnu_get_libc_version();
   }
 }

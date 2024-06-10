@@ -180,12 +180,13 @@ namespace JetBrains.HabitatDetector.Tests
     [Test]
     public void CurrentTest()
     {
-      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion), Environment.OSVersion);
-      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.Platform), Environment.OSVersion.Platform);
-      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.Version), Environment.OSVersion.Version);
-      Console.WriteLine("{0}: {1}", nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.ServicePack), Environment.OSVersion.ServicePack);
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSName), HabitatInfo.OSName);
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ClrImplementation), HabitatInfo.ClrImplementation);
+      Console.WriteLine(nameof(Environment) + "." + nameof(Environment.OSVersion)                                                   + ": {0}", Environment.OSVersion            );
+      Console.WriteLine(nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.Platform)    + ": {0}", Environment.OSVersion.Platform   );
+      Console.WriteLine(nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.Version)     + ": {0}", Environment.OSVersion.Version    );
+      Console.WriteLine(nameof(Environment) + "." + nameof(Environment.OSVersion) + "." + nameof(Environment.OSVersion.ServicePack) + ": {0}", Environment.OSVersion.ServicePack);
+
+      Console.WriteLine(nameof(HabitatInfo.OSName           ) + ": {0}", HabitatInfo.OSName);
+      Console.WriteLine(nameof(HabitatInfo.ClrImplementation) + ": {0}", HabitatInfo.ClrImplementation);
 
       if (HabitatInfo.ClrImplementation == JetClrImplementation.Mono)
       {
@@ -200,9 +201,11 @@ namespace JetBrains.HabitatDetector.Tests
       else
         Assert.IsNull(HabitatInfo.MonoVersion);
 
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.Platform), HabitatInfo.Platform);
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessArchitecture), HabitatInfo.ProcessArchitecture);
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSArchitecture), HabitatInfo.OSArchitecture);
+      Console.WriteLine(nameof(HabitatInfo.Platform              ) + ": {0}", HabitatInfo.Platform              );
+      Console.WriteLine(nameof(HabitatInfo.ProcessArchitecture   ) + ": {0}", HabitatInfo.ProcessArchitecture   );
+      Console.WriteLine(nameof(HabitatInfo.OSArchitecture        ) + ": {0}", HabitatInfo.OSArchitecture        );
+      Console.WriteLine(nameof(HabitatInfo.ProcessRuntimeIdString) + ": {0}", HabitatInfo.ProcessRuntimeIdString);
+      Console.WriteLine(nameof(HabitatInfo.OSRuntimeIdString     ) + ": {0}", HabitatInfo.OSRuntimeIdString     );
 
       Assert.AreEqual(HabitatInfo.ProcessArchitecture, HabitatInfo.GetProcessArchitecture(Process.GetCurrentProcess()));
       Assert.AreEqual(HabitatInfo.ProcessArchitecture, HabitatInfo.GetProcessArchitecture(Process.GetCurrentProcess().Id));
@@ -211,11 +214,11 @@ namespace JetBrains.HabitatDetector.Tests
       {
         Assert.AreEqual(PlatformID.Win32NT, Environment.OSVersion.Platform);
 
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsBuildNumber), HabitatInfo.WindowsBuildNumber?.ToString() ?? "<null>");
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsInstallationType), HabitatInfo.WindowsInstallationType?.ToString() ?? "<null>");
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsIsUserAdministrator), HabitatInfo.WindowsIsUserAdministrator?.ToString() ?? "<null>");
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsIsElevated), HabitatInfo.WindowsIsElevated?.ToString() ?? "<null>");
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.WindowsElevationType), HabitatInfo.WindowsElevationType?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.WindowsBuildNumber        ) + ": {0}", HabitatInfo.WindowsBuildNumber        ?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.WindowsInstallationType   ) + ": {0}", HabitatInfo.WindowsInstallationType   ?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.WindowsIsUserAdministrator) + ": {0}", HabitatInfo.WindowsIsUserAdministrator?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.WindowsIsElevated         ) + ": {0}", HabitatInfo.WindowsIsElevated         ?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.WindowsElevationType      ) + ": {0}", HabitatInfo.WindowsElevationType      ?.ToString() ?? "<null>");
 
         Assert.IsNotNull(HabitatInfo.WindowsBuildNumber);
         Assert.IsNotNull(HabitatInfo.WindowsIsUserAdministrator);
@@ -236,7 +239,7 @@ namespace JetBrains.HabitatDetector.Tests
 
       if (HabitatInfo.Platform == JetPlatform.MacOsX)
       {
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.MacOSVersion), HabitatInfo.MacOSVersion?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.MacOSVersion) + ": {0}", HabitatInfo.MacOSVersion?.ToString() ?? "<null>");
 
         if (HabitatInfo.MacOSVersion != null)
         {
@@ -247,30 +250,36 @@ namespace JetBrains.HabitatDetector.Tests
           Assert.Fail();
       }
       else
-      {
         Assert.IsNull(HabitatInfo.MacOSVersion);
-      }
-
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.ProcessRuntimeIdString), HabitatInfo.ProcessRuntimeIdString);
-      Console.WriteLine("{0}: {1}", nameof(HabitatInfo.OSRuntimeIdString), HabitatInfo.OSRuntimeIdString);
 
       if (HabitatInfo.Platform == JetPlatform.Linux)
       {
-        Console.WriteLine("{0}: {1}", nameof(HabitatInfo.LinuxLibC), HabitatInfo.LinuxLibC?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.LinuxLibC       ) + ": {0}", HabitatInfo.LinuxLibC       ?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.LinuxLibCVersion) + ": {0}", HabitatInfo.LinuxLibCVersion?.ToString() ?? "<null>");
         Assert.IsNotNull(HabitatInfo.LinuxLibC);
+        if (HabitatInfo.LinuxLibCVersion != null)
+        {
+          Assert.AreNotEqual(0, HabitatInfo.LinuxLibCVersion.Build);
+          Assert.AreEqual(-1, HabitatInfo.LinuxLibCVersion.Revision);
+        }
+        else if (HabitatInfo.LinuxLibC == JetLinuxLibC.Glibc)
+          Assert.Fail();
       }
       else
+      {
         Assert.IsNull(HabitatInfo.LinuxLibC);
+        Assert.IsNull(HabitatInfo.LinuxLibCVersion);
+      }
 
       var properties = OsReleaseProperties.ReadFromDefaultLocations();
       if (HabitatInfo.Platform is JetPlatform.Linux or JetPlatform.FreeBSD)
       {
         Assert.IsNotNull(properties);
 
-        Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.IdKey         + ']', properties!.TryGetValue(OsReleaseProperties.IdKey        ) ?? "<null>");
-        Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.NameKey       + ']', properties!.TryGetValue(OsReleaseProperties.NameKey      ) ?? "<null>");
-        Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.VersionIdKey  + ']', properties!.TryGetValue(OsReleaseProperties.VersionIdKey ) ?? "<null>");
-        Console.WriteLine("{0}: {1}", "os-release[" + OsReleaseProperties.PrettyNameKey + ']', properties!.TryGetValue(OsReleaseProperties.PrettyNameKey) ?? "<null>");
+        Console.WriteLine("os-release[" + OsReleaseProperties.IdKey         + "]: {0}", properties!.TryGetValue(OsReleaseProperties.IdKey        ) ?? "<null>");
+        Console.WriteLine("os-release[" + OsReleaseProperties.NameKey       + "]: {0}", properties!.TryGetValue(OsReleaseProperties.NameKey      ) ?? "<null>");
+        Console.WriteLine("os-release[" + OsReleaseProperties.VersionIdKey  + "]: {0}", properties!.TryGetValue(OsReleaseProperties.VersionIdKey ) ?? "<null>");
+        Console.WriteLine("os-release[" + OsReleaseProperties.PrettyNameKey + "]: {0}", properties!.TryGetValue(OsReleaseProperties.PrettyNameKey) ?? "<null>");
 
         Console.WriteLine("{0}: {1}", "UnixId", properties.TryGetUnixId()?.ToString() ?? "<null>");
       }

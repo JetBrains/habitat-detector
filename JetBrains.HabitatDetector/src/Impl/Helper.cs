@@ -21,6 +21,7 @@ namespace JetBrains.HabitatDetector.Impl
     internal static readonly Version? MonoVersion;
 
     internal static readonly JetLinuxLibC? LinuxLibC;
+    internal static readonly Version? LinuxLibCVersion;
 
     internal static readonly Version? MacOSVersion;
 
@@ -75,6 +76,12 @@ namespace JetBrains.HabitatDetector.Impl
 #pragma warning restore CS8624
           OSArchitecture = ProcessArchitecture; // Note(ww898): Normally OsArchitecture == ProcessArchitecture on Linux!!!!
           OSName = UnixHelper.GetOSName(Platform, unameSysname, unameRelease);
+          LinuxLibCVersion = NormalizeVersionNullable(LinuxLibC switch
+            {
+              JetLinuxLibC.Glibc => LinuxHelper.GetGlibcApiVersion(),
+              JetLinuxLibC.Musl => LinuxHelper.GetMuslLddVersion(),
+              _ => null
+            });
           break;
         case JetPlatform.MacOsX:
           ProcessArchitecture = unameArchitecture;
@@ -127,6 +134,8 @@ namespace JetBrains.HabitatDetector.Impl
         ? version
         : new(version.Major, version.Minor, version.Build)
       : new(version.Major, version.Minor);
+
+    internal static Version? NormalizeVersionNullable(Version? version) => version != null ? NormalizeVersion(version) : null;
 
     internal static unsafe JetArchitecture GetProcessArchitecture(int processId) => Platform switch
       {
