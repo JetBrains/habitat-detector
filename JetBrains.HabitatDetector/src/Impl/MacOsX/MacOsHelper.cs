@@ -88,6 +88,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
 
       var builder = new StringBuilder(version.Major switch
         {
+          15 => "macOS Sequoia",
           14 => "macOS Sonoma",
           13 => "macOS Ventura",
           12 => "macOS Monterey",
