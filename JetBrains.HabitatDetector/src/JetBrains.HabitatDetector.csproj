@@ -26,13 +26,14 @@ Supported frameworks:
     • .NET 5.0 and later
     • Mono 5.10 and later</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/JetBrains/habitat-detector</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/JetBrains/habitat-detector</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>jetbrains windows linux macos freebsd netstandard netframework</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Version>1.4.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.FormatRipper" Version="2.2.0" />
+    <PackageReference Include="JetBrains.FormatRipper" Version="2.2.1" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
