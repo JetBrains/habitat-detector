@@ -111,7 +111,7 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 
     internal record struct ElfInfo(JetLinuxLibC LinuxLibC, JetArchitecture ProcessArchitecture);
 
-    private static string? RunLddVersion()
+    private static string? RunLddVersion(bool shouldFail)
     {
 #if NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6
       return null;
@@ -123,31 +123,39 @@ namespace JetBrains.HabitatDetector.Impl.Linux
         return null;
 
       var builder = new StringBuilder();
+
+      void OnDataReceived(string? str)
+      {
+        if (str != null)
+          lock (builder)
+            builder.AppendLine(str);
+      }
+
       using (var process = new Process())
       {
+        // Note(ww898): MUSL doesn't support `--version` argument, so /usr/bin/ldd dumps version and fail with exit code 1, see https://github.com/kraj/musl/blob/007997299248b8682dcbb73595c53dfe86071c83/ldso/dynlink.c#L1895-L1901
         process.StartInfo = new ProcessStartInfo(ldd, "--version")
           {
             UseShellExecute = false,
+            CreateNoWindow = true,
             RedirectStandardOutput = true,
-            RedirectStandardError = true
+            RedirectStandardError = shouldFail
           };
 
-        void OnDataReceived(string? str)
-        {
-          if (str != null)
-            lock (builder)
-              builder.AppendLine(str);
-        }
-
-        process.ErrorDataReceived += (_, args) => OnDataReceived(args.Data);
         process.OutputDataReceived += (_, args) => OnDataReceived(args.Data);
+        if (shouldFail)
+          process.ErrorDataReceived += (_, args) => OnDataReceived(args.Data);
 
         if (!process.Start())
           throw new InvalidOperationException($"Failed to start {ldd} process");
-        process.BeginErrorReadLine();
+
         process.BeginOutputReadLine();
+        if (shouldFail)
+          process.BeginErrorReadLine();
+
         process.WaitForExit();
-        if (process.ExitCode != 0)
+
+        if (process.ExitCode != 0 && (!shouldFail || process.ExitCode != 1))
           throw new InvalidOperationException($"The {ldd} process failed with exit code {process.ExitCode}");
       }
       return builder.ToString();
@@ -158,13 +166,13 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 
     internal static Version? GetGlibcLddVersion()
     {
-        var output = RunLddVersion();
+        var output = RunLddVersion(false);
         return output != null ? ParseGlibcLddOutput(output) : null;
     }
 
     internal static Version? GetMuslLddVersion()
     {
-      var output = RunLddVersion();
+      var output = RunLddVersion(true);
       return output != null ? ParseMuslLddOutput(output) : null;
     }
 
