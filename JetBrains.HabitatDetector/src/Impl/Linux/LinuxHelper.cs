@@ -178,20 +178,36 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 
     internal static Version ParseGlibcLddOutput(string output)
     {
-      var regex = new Regex(@"^ldd\s\((GNU\slibc|.+\sGLIBC\s.+)\)\s(?<version>\d+\.\d+(\.\d+)?)\n", RegexOptions.Singleline);
+      var regex = new Regex(@"^ldd\s\(.+\)\s(?<version>[\d\.]+)");
       var grp = regex.Match(output).Groups["version"];
       if (!grp.Success)
-        throw new FormatException("Failed to parse GLibC version");
-      return new Version(grp.Captures[0].Value);
+        throw new FormatException($"Failed to extract GLibC version from ldd output: {output}");
+      var versionStr = grp.Captures[0].Value;
+      try
+      {
+        return new Version(versionStr);
+      }
+      catch (Exception e)
+      {
+        throw new FormatException($"Failed to parse GLibC version {versionStr} from ldd output: {output}", e);
+      }
     }
 
     internal static Version ParseMuslLddOutput(string output)
     {
-      var regex = new Regex(@"^musl\slibc\s\(.+\)\nVersion\s(?<version>\d+\.\d+(\.\d+)?)\n", RegexOptions.Singleline);
+      var regex = new Regex(@"^musl\slibc\s\(.+\)\nVersion\s(?<version>[\d\.]+)");
       var grp = regex.Match(output).Groups["version"];
       if (!grp.Success)
-        throw new FormatException("Failed to parse MUSL version");
-      return new Version(grp.Captures[0].Value);
+        throw new FormatException($"Failed to extract MUSL version from ldd output: {output}");
+      var versionStr = grp.Captures[0].Value;
+      try
+      {
+        return new Version(versionStr);
+      }
+      catch (Exception e)
+      {
+        throw new FormatException($"Failed to parse MUSL version {versionStr} from ldd output: {output}", e);
+      }
     }
   }
 }

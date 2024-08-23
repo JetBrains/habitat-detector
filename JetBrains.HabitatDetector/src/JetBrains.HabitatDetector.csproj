@@ -30,7 +30,7 @@ Supported frameworks:
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>jetbrains windows linux macos freebsd netstandard netframework</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.FormatRipper" Version="2.2.1" />

@@ -84,27 +84,21 @@ namespace JetBrains.HabitatDetector.Tests
       Assert.AreEqual(expectedLinuxLibC, elfInfo.LinuxLibC);
     }
 
-    [TestCase("ldd (GNU libc) 2.14.1\nCopyright", "2.14.1")]
-    [TestCase("ldd (GNU libc) 2.17\nCopyright", "2.17")]
-    [TestCase("ldd (GNU libc) 111.222\nCopyright", "111.222")]
-    [TestCase("ldd (GNU libc) 111.222.0\nCopyright", "111.222.0")]
-    [TestCase("ldd (GNU libc) 111.222.333\nCopyright", "111.222.333")]
-    [TestCase("ldd (Debian GLIBC 2.24-11+deb9u4) 2.24\nCopyright", "2.24")]
-    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 2.35\nCopyright", "2.35")]
-    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 111.222\nCopyright", "111.222")]
-    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 111.222.0\nCopyright", "111.222.0")]
-    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 111.222.333\nCopyright", "111.222.333")]
+    [TestCase("ldd (GNU libc) 2.14.1\nCopyright (C) 2011 Free Software Foundation, Inc.\n", "2.14.1")]
+    [TestCase("ldd (GNU libc) 2.17\nCopyright (C) 2012 Free Software Foundation, Inc.\n", "2.17")] // centos 7
+    [TestCase("ldd (Debian GLIBC 2.24-11+deb9u4) 2.24\nCopyright (C) 2016 Free Software Foundation, Inc.\n", "2.24")] // debian 9
+    [TestCase("ldd (Ubuntu GLIBC 2.35-0ubuntu3.8) 2.35\nCopyright (C) 2022 Free Software Foundation, Inc.\n", "2.35")] // ubuntu 22.04
+    [TestCase("ldd (Gentoo 2.29-r2 p3) 2.29\nCopyright (C) 2019 Free Software Foundation, Inc.\n", "2.29")]
+    [TestCase("ldd (Gentoo 2.39-r6 (patchset 6)) 2.39\nCopyright (C) 2024 Free Software Foundation, Inc.\n", "2.39")] // gentoo stage3 2.15
     [Test]
     public void TryParseGlibcLddOutputTest(string output, string expectedVersionStr)
     {
       Assert.AreEqual(new Version(expectedVersionStr), LinuxHelper.ParseGlibcLddOutput(output));
     }
 
-    [TestCase("musl libc (x86_64)\nVersion 1.2.4\nDynamic Program Loader", "1.2.4")]
-    [TestCase("musl libc (aarch64)\nVersion 1.2.2\nDynamic Program Loader", "1.2.2")]
-    [TestCase("musl libc (s390x)\nVersion 111.222\nDynamic Program Loader", "111.222")]
-    [TestCase("musl libc (s390x)\nVersion 111.222.0\nDynamic Program Loader", "111.222.0")]
-    [TestCase("musl libc (s390x)\nVersion 111.222.333\nDynamic Program Loader", "111.222.333")]
+    [TestCase("musl libc (x86_64)\nVersion 1.2.4\nDynamic Program Loader\n", "1.2.4")]
+    [TestCase("musl libc (aarch64)\nVersion 1.2.2\nDynamic Program Loader\n", "1.2.2")]
+    [TestCase("musl libc (armhf)\nVersion 1.2.4_git20230717\nDynamic Program Loader\n", "1.2.4")] // alpine 3.19.1
     [Test]
     public void TryParseMuslLddOutputTest(string output, string expectedVersionStr)
     {
