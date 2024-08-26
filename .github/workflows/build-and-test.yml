@@ -32,7 +32,7 @@ jobs:
       - name: Build and run tests
         run: dotnet test --configuration Release --no-restore --verbosity normal --logger 'trx;LogFilePrefix=test-results'
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: net-test-results-${{ matrix.os }}
@@ -70,7 +70,7 @@ jobs:
       - name: Build and run x64 tests
         run: $DotNetSdkX64/dotnet test --configuration Release --no-restore --verbosity normal --logger 'trx;LogFilePrefix=test-results_x64'
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: net-test-results-${{ matrix.os }}
@@ -101,7 +101,7 @@ jobs:
             dotnet test -f net8.0 --configuration Release --no-restore --verbosity normal --logger 'trx;LogFilePrefix=test-results' && \
             true"
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: net-test-results-qemu-${{ matrix.arch }}
@@ -140,7 +140,7 @@ jobs:
       - name: Build and Tests
         run: dotnet test -f ${{ env.tf }} -p:JB_TargetFramework=${{ env.tf }} --configuration Release --no-restore --verbosity normal --logger "trx;LogFilePrefix=test-results"
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: net-test-results-self-hosted-${{ matrix.os }}-${{ matrix.arch }}
