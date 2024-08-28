@@ -42,7 +42,10 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
         if (LibSystemCDylib.sysctl(mib, mibSize, bufPtr, &bufLen, null, 0) == -1)
           throw new Exception("Failed to get the build number string with sysctl(CTL_KERN,KERN_OSVERSION)");
 
-      return new string(Encoding.UTF8.GetChars(buf));
+      var chars = Encoding.UTF8.GetChars(buf);
+      var charsZeroIndex = Array.IndexOf(chars, '\0');
+      var charsLen = charsZeroIndex < 0 ? chars.Length : charsZeroIndex;
+      return new string(chars, 0, charsLen);
     }
 
     internal static unsafe Version GetOSVersion(JetArchitecture processArchitecture)

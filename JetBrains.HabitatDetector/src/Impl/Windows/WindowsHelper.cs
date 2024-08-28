@@ -294,10 +294,9 @@ namespace JetBrains.HabitatDetector.Impl.Windows
         if (Data == null)
           throw new NullReferenceException();
         var chars = Encoding.Unicode.GetChars(Data);
-        var n = 0;
-        while (n < chars.Length && chars[n] != '\0')
-          ++n;
-        return new string(chars, 0, n);
+        var charsZeroIndex = Array.IndexOf(chars, '\0');
+        var charsLen = charsZeroIndex < 0 ? chars.Length : charsZeroIndex;
+        return new string(chars, 0, charsLen);
       }
 
       public uint? AsOptionalDWord() => Type == REG.REG_DWORD ? AsDWord() : null;
