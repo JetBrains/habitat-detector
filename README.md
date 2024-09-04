@@ -2,6 +2,6 @@
 
 [![Build and run tests](https://github.com/JetBrains/habitat-detector/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/JetBrains/habitat-detector/actions/workflows/build-and-test.yml)
 
-[![NuGet Badge](https://buildstats.info/nuget/JetBrains.HabitatDetector)](https://www.nuget.org/packages/JetBrains.HabitatDetector)
+[![NuGet Version](https://img.shields.io/nuget/v/JetBrains.HabitatDetector?label=JetBrains.HabitatDetector)](https://www.nuget.org/packages/JetBrains.HabitatDetector)
 
 The library provides unified way to detect real OS type and architecture, process architecture, CLR implementation type and OS-depended parameters such as elevation on Windows or libc kind on Linux.
