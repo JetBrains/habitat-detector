@@ -72,14 +72,14 @@ namespace JetBrains.HabitatDetector.Impl
         case JetPlatform.Linux:
           // Note(ww898): Do not use `unameArchitecture` on Linux because 32-bit docker can be run on 64-bit host!!!
 #pragma warning disable CS8624
-          (LinuxLibC, ProcessArchitecture) = LinuxHelper.GetElfInfo();
+          (LinuxLibC, ProcessArchitecture, var interpreter) = LinuxHelper.GetElfInfo();
 #pragma warning restore CS8624
           OSArchitecture = ProcessArchitecture; // Note(ww898): Normally OsArchitecture == ProcessArchitecture on Linux!!!!
           OSName = UnixHelper.GetOSName(Platform, unameSysname, unameRelease);
           LinuxLibCVersion = NormalizeVersionNullable(LinuxLibC switch
             {
               JetLinuxLibC.Glibc => LinuxHelper.GetGlibcApiVersion(),
-              JetLinuxLibC.Musl => LinuxHelper.GetMuslLddVersion(),
+              JetLinuxLibC.Musl => LinuxHelper.GetMuslLddVersion(interpreter),
               _ => null
             });
           break;

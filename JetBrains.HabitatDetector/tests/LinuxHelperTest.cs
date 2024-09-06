@@ -113,14 +113,19 @@ namespace JetBrains.HabitatDetector.Tests
       {
       case JetLinuxLibC.Glibc:
         var glibcApiVersion = LinuxHelper.GetGlibcApiVersion();
-        var glibcLddVersion = LinuxHelper.GetGlibcLddVersion();
+        var glibcLddVersion = LinuxHelper.GetGlibcLddVersion(LinuxHelper.DefaultLdd);
         Console.WriteLine("GlibcApiVersion: {0}", glibcApiVersion);
         Console.WriteLine("GlibcLddVersion: {0}", glibcLddVersion?.ToString() ?? "<null>");
         if (glibcLddVersion != null)
           Assert.AreEqual(glibcApiVersion, glibcLddVersion);
         break;
       case JetLinuxLibC.Musl:
-        Console.WriteLine("MuslLddVersion: {0}", LinuxHelper.GetMuslLddVersion()?.ToString() ?? "<null>");
+        var interpreter = LinuxHelper.GetElfInfo().Interpreter;
+        var muslInterpreterVersion = LinuxHelper.GetMuslLddVersion(interpreter);
+        var muslLddVersion = LinuxHelper.GetMuslLddVersion(LinuxHelper.DefaultLdd);
+        Console.WriteLine("MuslLddVersion ({1}): {0}", muslInterpreterVersion?.ToString() ?? "<null>", interpreter);
+        Console.WriteLine("MuslLddVersion ({1}): {0}", muslLddVersion?.ToString() ?? "<null>", LinuxHelper.DefaultLdd);
+        Assert.AreEqual(muslLddVersion, muslInterpreterVersion);
         break;
       }
     }

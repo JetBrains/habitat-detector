@@ -11,9 +11,10 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 {
   internal static class LinuxHelper
   {
-    internal static ElfInfo GetElfInfo() => GetElfInfo("/proc/self/exe");
+    internal const string DefaultLdd = "/usr/bin/ldd";
+    internal const string DefaultExecutable = "/proc/self/exe";
 
-    internal static ElfInfo GetElfInfo(string executable)
+    internal static ElfInfo GetElfInfo(string executable = DefaultExecutable)
     {
       using var stream = File.OpenRead(executable);
       return GetElfInfo(stream);
@@ -28,7 +29,8 @@ namespace JetBrains.HabitatDetector.Impl.Linux
         throw new FormatException($"Invalid ELF object file type {elfFile.EType}");
       return new ElfInfo(
         ConvertToLibC(elfFile.Interpreter ?? throw new FormatException("Can't find ELF program interpreter")) ?? JetLinuxLibC.Glibc, // Note(ww898): Fallback to GLibC because OpenSUSE and other.
-        ConvertToArchitecture(elfFile.EiClass, elfFile.EiData, elfFile.EMachine));
+        ConvertToArchitecture(elfFile.EiClass, elfFile.EiData, elfFile.EMachine),
+        elfFile.Interpreter);
     }
 
     internal static JetLinuxLibC? ConvertToLibC(string interpreter)
@@ -109,16 +111,14 @@ namespace JetBrains.HabitatDetector.Impl.Linux
       throw new PlatformNotSupportedException($"Invalid ELF file class {eiClass}, endian {eiData} and architecture {eMachine}");
     }
 
-    internal record struct ElfInfo(JetLinuxLibC LinuxLibC, JetArchitecture ProcessArchitecture);
+    internal record struct ElfInfo(JetLinuxLibC LinuxLibC, JetArchitecture ProcessArchitecture, string Interpreter);
 
-    private static string? RunLddVersion(bool shouldFail)
+    private static string? RunLddVersion(bool shouldFail, string ldd)
     {
 #if NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6
       return null;
 #else
-      const string ldd = "/usr/bin/ldd";
-
-      // Note(ww898): We are fail on NixOS because no /usr/bin/ldd on system.
+      // Note(ww898): We can fail whether no ldd on system.
       if (!File.Exists(ldd))
         return null;
 
@@ -164,15 +164,15 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 
     internal static Version GetGlibcApiVersion() => new(Marshal.PtrToStringAnsi(LibC.gnu_get_libc_version())!);
 
-    internal static Version? GetGlibcLddVersion()
+    internal static Version? GetGlibcLddVersion(string ldd)
     {
-        var output = RunLddVersion(false);
+        var output = RunLddVersion(false, ldd);
         return output != null ? ParseGlibcLddOutput(output) : null;
     }
 
-    internal static Version? GetMuslLddVersion()
+    internal static Version? GetMuslLddVersion(string ldd)
     {
-      var output = RunLddVersion(true);
+      var output = RunLddVersion(true, ldd);
       return output != null ? ParseMuslLddOutput(output) : null;
     }
 
