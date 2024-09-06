@@ -33,7 +33,7 @@ Supported frameworks:
     <Version>1.4.2</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.FormatRipper" Version="2.2.1" />
+    <PackageReference Include="JetBrains.FormatRipper" Version="2.2.2" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
