@@ -14,6 +14,7 @@ namespace JetBrains.HabitatDetector.Tests
     [TestCase("kali-2020.4"       , "kali"         , "2020.4", "Kali GNU/Linux"          , "Kali GNU/Linux Rolling"              , JetUnixId.Kali)]
     [TestCase("manjaro"           , "manjaro"      , null    , "Manjaro Linux"           , "Manjaro Ruah"                        , JetUnixId.Manjaro)]
     [TestCase("manjaro-arm"       , "manjaro-arm"  , null    , "Manjaro-ARM"             , "Manjaro ARM"                         , JetUnixId.Manjaro)]
+    [TestCase("nixos-24.05"       , "nixos"        , "24.05" , "NixOS"                   , "NixOS 24.05 (Uakari)"                , JetUnixId.NixOS)]
     [TestCase("opensuse-42.3"     , "opensuse"     , "42.3"  , "openSUSE Leap"           , "openSUSE Leap 42.3"                  , JetUnixId.OpenSUSE)]
     [TestCase("opensuse-leap-15.1", "opensuse-leap", "15.1"  , "openSUSE Leap"           , "openSUSE Leap 15.1"                  , JetUnixId.OpenSUSE)]
     [TestCase("rhel-8.4"          , "rhel"         , "8.4"   , "Red Hat Enterprise Linux", "Red Hat Enterprise Linux 8.4 (Ootpa)", JetUnixId.RHEL)]

@@ -56,6 +56,7 @@ namespace JetBrains.HabitatDetector
         case "kali"      : return JetUnixId.Kali;
         case "linuxmint" : return JetUnixId.Mint;
         case "manjaro"   : return JetUnixId.Manjaro;
+        case "nixos"     : return JetUnixId.NixOS;
         case "ol"        : return JetUnixId.Oracle;
         case "opensuse"  : return JetUnixId.OpenSUSE;
         case "rhel"      : return JetUnixId.RHEL;

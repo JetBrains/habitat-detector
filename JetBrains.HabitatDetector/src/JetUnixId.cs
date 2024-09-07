@@ -16,6 +16,7 @@ namespace JetBrains.HabitatDetector
     Kali,
     Manjaro,
     Mint,
+    NixOS,
     OpenSUSE,
     Oracle,
     RHEL,
