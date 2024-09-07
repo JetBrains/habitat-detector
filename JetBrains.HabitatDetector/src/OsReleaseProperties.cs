@@ -72,7 +72,11 @@ namespace JetBrains.HabitatDetector
     public static OsReleaseProperties? ReadFromDefaultLocations()
     {
       if (HabitatInfo.Platform is JetPlatform.FreeBSD or JetPlatform.Linux)
-        foreach (var osReleaseFile in new[] { "/etc/os-release", "/usr/lib/os-release" })
+        foreach (var osReleaseFile in new[]
+                 {
+                   "/etc/os-release",
+                   "/usr/lib/os-release"
+                 })
           if (File.Exists(osReleaseFile))
           {
             using var reader = File.OpenText(osReleaseFile);

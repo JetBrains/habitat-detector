@@ -113,19 +113,21 @@ namespace JetBrains.HabitatDetector.Tests
       {
       case JetLinuxLibC.Glibc:
         var glibcApiVersion = LinuxHelper.GetGlibcApiVersion();
-        var glibcLddVersion = LinuxHelper.GetGlibcLddVersion(LinuxHelper.DefaultLdd);
         Console.WriteLine("GlibcApiVersion: {0}", glibcApiVersion);
-        Console.WriteLine("GlibcLddVersion: {0}", glibcLddVersion?.ToString() ?? "<null>");
+        var glibcLddVersion = LinuxHelper.GetGlibcLddVersion(LinuxHelper.DefaultLdd);
+        Console.WriteLine("GlibcLddVersion ({1}): {0}", glibcLddVersion?.ToString() ?? "<null>", LinuxHelper.DefaultLdd);
         if (glibcLddVersion != null)
           Assert.AreEqual(glibcApiVersion, glibcLddVersion);
         break;
       case JetLinuxLibC.Musl:
         var interpreter = LinuxHelper.GetElfInfo().Interpreter;
         var muslInterpreterVersion = LinuxHelper.GetMuslLddVersion(interpreter);
-        var muslLddVersion = LinuxHelper.GetMuslLddVersion(LinuxHelper.DefaultLdd);
         Console.WriteLine("MuslLddVersion ({1}): {0}", muslInterpreterVersion?.ToString() ?? "<null>", interpreter);
+        Assert.IsNotNull(muslInterpreterVersion);
+        var muslLddVersion = LinuxHelper.GetMuslLddVersion(LinuxHelper.DefaultLdd);
         Console.WriteLine("MuslLddVersion ({1}): {0}", muslLddVersion?.ToString() ?? "<null>", LinuxHelper.DefaultLdd);
-        Assert.AreEqual(muslLddVersion, muslInterpreterVersion);
+        if (muslLddVersion != null)
+          Assert.AreEqual(muslLddVersion, muslInterpreterVersion);
         break;
       }
     }

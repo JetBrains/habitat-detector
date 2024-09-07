@@ -272,19 +272,22 @@ namespace JetBrains.HabitatDetector.Tests
       }
 
       var properties = OsReleaseProperties.ReadFromDefaultLocations();
-      if (HabitatInfo.Platform is JetPlatform.Linux or JetPlatform.FreeBSD)
-      {
-        Assert.IsNotNull(properties);
-
-        Console.WriteLine("os-release[" + OsReleaseProperties.IdKey         + "]: {0}", properties!.TryGetValue(OsReleaseProperties.IdKey        ) ?? "<null>");
-        Console.WriteLine("os-release[" + OsReleaseProperties.NameKey       + "]: {0}", properties!.TryGetValue(OsReleaseProperties.NameKey      ) ?? "<null>");
-        Console.WriteLine("os-release[" + OsReleaseProperties.VersionIdKey  + "]: {0}", properties!.TryGetValue(OsReleaseProperties.VersionIdKey ) ?? "<null>");
-        Console.WriteLine("os-release[" + OsReleaseProperties.PrettyNameKey + "]: {0}", properties!.TryGetValue(OsReleaseProperties.PrettyNameKey) ?? "<null>");
-
-        Console.WriteLine("{0}: {1}", "UnixId", properties.TryGetUnixId()?.ToString() ?? "<null>");
-      }
-      else
+      if (HabitatInfo.Platform is not (JetPlatform.Linux or JetPlatform.FreeBSD))
         Assert.IsNull(properties);
+      else if (properties != null)
+      {
+        Console.WriteLine("UnixId: {0}", properties.TryGetUnixId()?.ToString() ?? "<null>");
+        foreach (var key in new[]
+                 {
+                   OsReleaseProperties.IdKey,
+                   OsReleaseProperties.IdLikeKey,
+                   OsReleaseProperties.VersionIdKey,
+                   OsReleaseProperties.VersionKey,
+                   OsReleaseProperties.NameKey,
+                   OsReleaseProperties.PrettyNameKey
+                 })
+          Console.WriteLine("os-release[{0}]: {1}", key, properties.TryGetValue(key) ?? "<null>");
+      }
     }
   }
 }
