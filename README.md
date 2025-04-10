@@ -4,4 +4,4 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/JetBrains.HabitatDetector?label=JetBrains.HabitatDetector)](https://www.nuget.org/packages/JetBrains.HabitatDetector)
 
-The library provides unified way to detect real OS type and architecture, process architecture, CLR implementation type and OS-depended parameters such as elevation on Windows or libc kind on Linux.
+The library provides a unified way to detect the real OS type and architecture, process architecture, CLR implementation type, and OS-dependent parameters such as elevation on Windows or libc kind on Linux.
