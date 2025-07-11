@@ -211,6 +211,8 @@ namespace JetBrains.HabitatDetector.Impl.Windows
       //   | 22000 |   11 21H2   | --------- |
       //   | 22621 |      22H2   | --------- |
       //   | 22631 |      23H2   | --------- |
+      //   | 25398 | ----------- |      23H2 |
+      //   | 26100 |      23H2   | 2025 24H2 |
 
       // See https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
 
