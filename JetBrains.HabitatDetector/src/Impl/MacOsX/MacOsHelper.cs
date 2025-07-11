@@ -91,6 +91,8 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
 
       var builder = new StringBuilder(version.Major switch
         {
+          26 => "macOS Tahoe",
+          16 or 17 or 18 or 19 or 20 or 21 or 22 or 23 or 24 or 25 => throw new InvalidOperationException($"Invalid macOS major version: {version.Major}"),
           15 => "macOS Sequoia",
           14 => "macOS Sonoma",
           13 => "macOS Ventura",
@@ -116,8 +118,8 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
               0 => "Mac OS X Cheetah",
               _ => throw new InvalidOperationException("Invalid macOS 10 minor version")
             },
-          0 or 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or 9 => throw new InvalidOperationException("Invalid macOS major version"),
-          _ => "macOS" // Note(ww898): The fallback for unknown macOS name!!!
+          0 or 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or 9 => throw new InvalidOperationException($"Invalid macOS major version: {version.Major}"),
+          _ => "macOS" // Note(ww898): The fallback for an unknown macOS name!!!
         });
 
       builder.Append(' ').Append(version.Major).Append('.').Append(version.Minor);
