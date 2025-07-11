@@ -240,7 +240,9 @@ namespace JetBrains.HabitatDetector.Impl.Windows
       // Note(ww898): 32-bits processes should access 64-bits registry because correct data only in it! See https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-key-security-and-access-rights
       return RegQueryValues(HKEY.HKEY_LOCAL_MACHINE, @"SOFTWARE\Microsoft\Windows NT\CurrentVersion", KeyAccessRights.KEY_WOW64_64KEY, query =>
         {
-          var productName = query("ProductName").AsString();
+          // Bug(ww898): Some users doesn't have "ProductName" value at all, see https://youtrack.jetbrains.com/issue/NP-1914
+          var productName = query("ProductName").AsOptionalString() ?? "Windows";
+
           var buildNumber = uint.Parse(query("CurrentBuild").AsString());
           var installationType = query("InstallationType").AsOptionalString() switch
             {
