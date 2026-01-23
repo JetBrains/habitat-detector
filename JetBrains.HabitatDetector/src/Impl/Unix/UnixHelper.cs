@@ -116,5 +116,21 @@ namespace JetBrains.HabitatDetector.Impl.Unix
 
       return builder.ToString();
     }
+
+    internal static string GetRealPath(string path)
+    {
+      var ptr = LibC.realpath(path, IntPtr.Zero);
+      if (ptr == IntPtr.Zero)
+        throw new ArgumentOutOfRangeException($"Failed realpath() with error {Marshal.GetLastWin32Error()} for {path}");
+      try
+      {
+        return Marshal.PtrToStringAnsi(ptr)!;
+      }
+      finally
+      {
+        Marshal.FreeHGlobal(ptr);
+      }
+    }
+
   }
 }
