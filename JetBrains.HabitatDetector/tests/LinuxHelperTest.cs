@@ -122,8 +122,8 @@ namespace JetBrains.HabitatDetector.Tests
     {
       if (HabitatInfo.Platform != JetPlatform.Linux)
         Assert.Ignore("Linux test only");
-      var (linuxLibC, processArchitecture, interpreter) = LinuxHelper.GetElfInfo(LinuxHelper.DefaultExecutable);
-      Console.WriteLine("GetElfInfo ({3}): {0},{1},{2}", linuxLibC, processArchitecture, interpreter, LinuxHelper.DefaultExecutable);
+      var (linuxLibC, processArchitecture, interpreter) = LinuxHelper.GetElfInfo(LinuxHelper.CurrentExecutable);
+      Console.WriteLine("GetElfInfo ({3}): {0},{1},{2}", linuxLibC, processArchitecture, interpreter, LinuxHelper.CurrentExecutable);
     }
 
     [Platform("Linux")]
@@ -132,7 +132,7 @@ namespace JetBrains.HabitatDetector.Tests
     {
       if (HabitatInfo.Platform != JetPlatform.Linux)
         Assert.Ignore("Linux test only");
-      Console.WriteLine("GetRealPath ({1}): {0}", UnixHelper.GetRealPath(LinuxHelper.DefaultExecutable), LinuxHelper.DefaultExecutable);
+      Console.WriteLine("GetRealPath ({1}): {0}", UnixHelper.GetRealPath(LinuxHelper.CurrentExecutable), LinuxHelper.CurrentExecutable);
     }
 
     [Platform("Linux")]
@@ -146,7 +146,7 @@ namespace JetBrains.HabitatDetector.Tests
       case JetLinuxLibC.Glibc:
         var glibcApiVersion = LinuxHelper.GetGlibcApiVersion();
         Console.WriteLine("GlibcApiVersion: {0}", glibcApiVersion);
-        foreach (var ldd in new[] { LinuxHelper.DefaultLdd, LinuxHelper.GetElfInfo(LinuxHelper.DefaultExecutable).Interpreter })
+        foreach (var ldd in new[] { LinuxHelper.DefaultLdd, LinuxHelper.GetElfInfo(LinuxHelper.CurrentExecutable).Interpreter })
         {
           var lddVersion = LinuxHelper.GetGlibcLddVersion(ldd);
           Console.WriteLine("GetGlibcLddVersion ({1}): {0}", lddVersion?.ToString() ?? "<null>", ldd);
@@ -155,7 +155,7 @@ namespace JetBrains.HabitatDetector.Tests
         break;
       case JetLinuxLibC.Musl:
         Version? muslLddVersion = null;
-        foreach (var ldd in new[] { LinuxHelper.DefaultLdd, LinuxHelper.GetElfInfo(LinuxHelper.DefaultExecutable).Interpreter })
+        foreach (var ldd in new[] { LinuxHelper.DefaultLdd, LinuxHelper.GetElfInfo(LinuxHelper.CurrentExecutable).Interpreter })
         {
           var lddVersion = LinuxHelper.GetMuslLddVersion(ldd);
           Console.WriteLine("GetMuslLddVersion ({1}): {0}", lddVersion?.ToString() ?? "<null>", ldd);

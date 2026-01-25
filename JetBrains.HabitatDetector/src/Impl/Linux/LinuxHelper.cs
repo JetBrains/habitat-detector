@@ -12,7 +12,7 @@ namespace JetBrains.HabitatDetector.Impl.Linux
   internal static class LinuxHelper
   {
     internal const string DefaultLdd = "/usr/bin/ldd";
-    internal const string DefaultExecutable = "/proc/self/exe";
+    internal const string CurrentExecutable = "/proc/self/exe";
 
     internal static ElfInfo GetElfInfo(string executable)
     {
