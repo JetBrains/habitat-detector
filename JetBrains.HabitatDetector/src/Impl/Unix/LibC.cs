@@ -16,5 +16,8 @@ namespace JetBrains.HabitatDetector.Impl.Unix
 
     [DllImport(LibraryName, SetLastError = true)]
     public static extern IntPtr realpath([MarshalAs(UnmanagedType.LPStr)] string path, IntPtr resolved_path);
+
+    [DllImport(LibraryName, SetLastError = true)]
+    public static extern int system([MarshalAs(UnmanagedType.LPStr)] string command);
   }
 }

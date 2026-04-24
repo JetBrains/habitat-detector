@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using JetBrains.HabitatDetector.Impl.Unix;
 
 namespace JetBrains.HabitatDetector.Impl.MacOsX
 {
@@ -8,6 +9,11 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
   {
     internal static bool GetRunningUnderRosetta2() => GetRunningUnderRosetta2(LibSystemKernelDylib.getpid());
     internal static bool GetRunningUnderRosetta2(int processId) => GetSysctlKernProcPidTranslated(processId) ?? false;
+
+    internal static bool IsRosetta2InstalledOnArm64()
+    {
+      return LibC.system("/usr/bin/arch -x86_64 /usr/bin/true >/dev/null 2>&1") == 0;
+    }
 
     private static unsafe bool? GetSysctlKernProcPidTranslated(int pid)
     {

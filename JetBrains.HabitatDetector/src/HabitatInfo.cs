@@ -21,6 +21,7 @@ namespace JetBrains.HabitatDetector
     public static Version? LinuxLibCVersion => Helper.LinuxLibCVersion;
 
     public static Version? MacOSVersion => Helper.MacOSVersion;
+    public static bool? MacOSArm64IsRosetta2Installed => Helper.MacOSArm64IsRosetta2Installed;
 
     public static uint? WindowsBuildNumber => Helper.WindowsBuildNumber;
     public static JetWindowsInstallationType? WindowsInstallationType => Helper.WindowsInstallationType;
@@ -28,15 +29,15 @@ namespace JetBrains.HabitatDetector
     public static bool? WindowsIsElevated => Helper.WindowsIsElevated;
     public static JetWindowsTokenElevationType? WindowsElevationType => Helper.WindowsElevationType;
 
-    public static JetArchitecture[] AllOrderedArchitectures => GetAllOrderedArchitecturesForOS(Platform, OSArchitecture);
+    public static JetArchitecture[] AllOrderedArchitectures => GetAllOrderedArchitecturesForOS(Platform, OSArchitecture, MacOSArm64IsRosetta2Installed);
 
-    public static JetArchitecture[] GetAllOrderedArchitecturesForOS(JetPlatform platform, JetArchitecture osArchitecture)
-    {
-      return platform == JetPlatform.Windows && osArchitecture == JetArchitecture.Arm64 ? new[] { JetArchitecture.Arm64, JetArchitecture.X64, JetArchitecture.X86 } :
-        platform == JetPlatform.Windows && osArchitecture == JetArchitecture.X64 ? new[] { JetArchitecture.X64, JetArchitecture.X86 } :
-        platform == JetPlatform.MacOsX && osArchitecture == JetArchitecture.Arm64 ? new[] { JetArchitecture.Arm64, JetArchitecture.X64 } :
-        new[] { osArchitecture };
-    }
+    public static JetArchitecture[] GetAllOrderedArchitecturesForOS(JetPlatform platform, JetArchitecture osArchitecture, bool? macOSArm64IsRosetta2Installed) => platform switch
+      {
+        JetPlatform.MacOsX when osArchitecture == JetArchitecture.Arm64 && macOSArm64IsRosetta2Installed == true => new[] { JetArchitecture.Arm64, JetArchitecture.X64 },
+        JetPlatform.Windows when osArchitecture == JetArchitecture.Arm64 => new[] { JetArchitecture.Arm64, JetArchitecture.X64, JetArchitecture.X86 },
+        JetPlatform.Windows when osArchitecture == JetArchitecture.X64 => new[] { JetArchitecture.X64, JetArchitecture.X86 },
+        _ => new[] { osArchitecture }
+      };
 
     public static JetArchitecture GetProcessArchitecture(int processId) => Helper.GetProcessArchitecture(processId);
     public static unsafe JetArchitecture GetProcessArchitecture(void* processHandle) => Helper.GetProcessArchitecture(processHandle);

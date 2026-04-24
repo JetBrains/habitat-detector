@@ -24,6 +24,7 @@ namespace JetBrains.HabitatDetector.Impl
     internal static readonly Version? LinuxLibCVersion;
 
     internal static readonly Version? MacOSVersion;
+    internal static readonly bool? MacOSArm64IsRosetta2Installed;
 
     internal static readonly uint? WindowsBuildNumber;
     internal static readonly JetWindowsInstallationType? WindowsInstallationType;
@@ -88,6 +89,8 @@ namespace JetBrains.HabitatDetector.Impl
           OSArchitecture = MacOsHelper.GetRunningUnderRosetta2() ? JetArchitecture.Arm64 : unameArchitecture; // Note(ww898): Process under Rosetta2 works only on ARM64 host!
           MacOSVersion = NormalizeVersion(MacOsHelper.GetOSVersion(unameArchitecture));
           OSName = MacOsHelper.GetOSName(MacOSVersion);
+          if (OSArchitecture == JetArchitecture.Arm64)
+            MacOSArm64IsRosetta2Installed = MacOsHelper.IsRosetta2InstalledOnArm64();
           break;
         default: throw new PlatformNotSupportedException($"Unsupported platform {Platform}");
         }

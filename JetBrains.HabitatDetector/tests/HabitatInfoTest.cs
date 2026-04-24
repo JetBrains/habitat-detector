@@ -113,29 +113,30 @@ namespace JetBrains.HabitatDetector.Tests
     [Test]
     public void OrderedArchitecturesTest()
     {
-      static void Check(JetPlatform platform, JetArchitecture osArchitecture, params JetArchitecture[] expectedOrderedArchitectures)
+      static void Check(JetPlatform platform, JetArchitecture osArchitecture, bool? macOSArm64IsRosetta2Installed, JetArchitecture[] expectedOrderedArchitectures)
       {
-        var orderedArchitectures = HabitatInfo.GetAllOrderedArchitecturesForOS(platform, osArchitecture);
+        var orderedArchitectures = HabitatInfo.GetAllOrderedArchitecturesForOS(platform, osArchitecture, macOSArm64IsRosetta2Installed);
         Assert.AreEqual(expectedOrderedArchitectures.Length, orderedArchitectures.Length);
         for (var n = 0; n < expectedOrderedArchitectures.Length; n++)
           Assert.AreEqual(expectedOrderedArchitectures[n], orderedArchitectures[n]);
       }
 
-      Check(JetPlatform.Linux, JetArchitecture.Arm, JetArchitecture.Arm);
-      Check(JetPlatform.Linux, JetArchitecture.Arm64, JetArchitecture.Arm64);
-      Check(JetPlatform.Linux, JetArchitecture.LoongArch64, JetArchitecture.LoongArch64);
-      Check(JetPlatform.Linux, JetArchitecture.Ppc64le, JetArchitecture.Ppc64le);
-      Check(JetPlatform.Linux, JetArchitecture.RiscV64, JetArchitecture.RiscV64);
-      Check(JetPlatform.Linux, JetArchitecture.S390x, JetArchitecture.S390x);
-      Check(JetPlatform.Linux, JetArchitecture.X64, JetArchitecture.X64);
-      Check(JetPlatform.Linux, JetArchitecture.X86, JetArchitecture.X86);
+      Check(JetPlatform.Linux, JetArchitecture.Arm, null, new[] { JetArchitecture.Arm });
+      Check(JetPlatform.Linux, JetArchitecture.Arm64, null, new[] { JetArchitecture.Arm64 });
+      Check(JetPlatform.Linux, JetArchitecture.LoongArch64, null, new[] { JetArchitecture.LoongArch64 });
+      Check(JetPlatform.Linux, JetArchitecture.Ppc64le, null, new[] { JetArchitecture.Ppc64le });
+      Check(JetPlatform.Linux, JetArchitecture.RiscV64, null, new[] { JetArchitecture.RiscV64 });
+      Check(JetPlatform.Linux, JetArchitecture.S390x, null, new[] { JetArchitecture.S390x });
+      Check(JetPlatform.Linux, JetArchitecture.X64, null, new[] { JetArchitecture.X64 });
+      Check(JetPlatform.Linux, JetArchitecture.X86, null, new[] { JetArchitecture.X86 });
 
-      Check(JetPlatform.MacOsX, JetArchitecture.Arm64, JetArchitecture.Arm64, JetArchitecture.X64);
-      Check(JetPlatform.MacOsX, JetArchitecture.X64, JetArchitecture.X64);
+      Check(JetPlatform.MacOsX, JetArchitecture.Arm64, true, new[] { JetArchitecture.Arm64, JetArchitecture.X64 });
+      Check(JetPlatform.MacOsX, JetArchitecture.Arm64, false, new[] { JetArchitecture.Arm64 });
+      Check(JetPlatform.MacOsX, JetArchitecture.X64, null, new[] { JetArchitecture.X64 });
 
-      Check(JetPlatform.Windows, JetArchitecture.Arm64, JetArchitecture.Arm64, JetArchitecture.X64, JetArchitecture.X86);
-      Check(JetPlatform.Windows, JetArchitecture.X64, JetArchitecture.X64, JetArchitecture.X86);
-      Check(JetPlatform.Windows, JetArchitecture.X86, JetArchitecture.X86);
+      Check(JetPlatform.Windows, JetArchitecture.Arm64, null, new[] { JetArchitecture.Arm64, JetArchitecture.X64, JetArchitecture.X86 });
+      Check(JetPlatform.Windows, JetArchitecture.X64, null, new[] { JetArchitecture.X64, JetArchitecture.X86 });
+      Check(JetPlatform.Windows, JetArchitecture.X86, null, new[] { JetArchitecture.X86 });
     }
 
     [TestCase(JetClrImplementation.Mono, "Mono")]
@@ -240,6 +241,7 @@ namespace JetBrains.HabitatDetector.Tests
       if (HabitatInfo.Platform == JetPlatform.MacOsX)
       {
         Console.WriteLine(nameof(HabitatInfo.MacOSVersion) + ": {0}", HabitatInfo.MacOSVersion?.ToString() ?? "<null>");
+        Console.WriteLine(nameof(HabitatInfo.MacOSArm64IsRosetta2Installed) + ": {0}", HabitatInfo.MacOSArm64IsRosetta2Installed?.ToString() ?? "<null>");
 
         if (HabitatInfo.MacOSVersion != null)
         {
