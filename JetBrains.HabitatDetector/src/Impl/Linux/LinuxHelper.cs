@@ -13,11 +13,18 @@ namespace JetBrains.HabitatDetector.Impl.Linux
   {
     internal const string DefaultLdd = "/usr/bin/ldd";
     internal const string CurrentExecutable = "/proc/self/exe";
+    internal const string CurrentCommandLine = "/proc/self/cmdline";
 
-    internal static ElfInfo GetElfInfo(string executable)
+    internal static string[] GetCmdLine(string file)
     {
-      using var stream = File.OpenRead(executable);
-      return GetElfInfo(UnixHelper.GetRealPath(executable), stream);
+      return File.ReadAllText(file).Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    internal static ElfInfo GetElfInfo()
+    {
+      using var stream = File.OpenRead(CurrentExecutable);
+      var executable = GetCmdLine(CurrentCommandLine)[0];
+      return GetElfInfo(executable[0] == '/' ? executable : "/lib/" + executable, stream);
     }
 
     internal static ElfInfo GetElfInfo(string executable, Stream stream)
@@ -179,7 +186,24 @@ namespace JetBrains.HabitatDetector.Impl.Linux
 #endif
     }
 
-    internal static Version GetGlibcApiVersion() => new(Marshal.PtrToStringAnsi(LibC.gnu_get_libc_version())!);
+    internal static Version? GetGlibcApiVersion()
+    {
+      IntPtr gnuGetLibcVersion;
+      try
+      {
+        gnuGetLibcVersion = LibC.gnu_get_libc_version();
+      }
+#if NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6
+      catch
+#else
+      catch (EntryPointNotFoundException)
+#endif
+      {
+        // Note(ww898): To simplify using Glibc on Musl only! See https://youtrack.jetbrains.com/issue/RIDER-134882
+        return null;
+      }
+      return new Version(Marshal.PtrToStringAnsi(gnuGetLibcVersion)!);
+    }
 
     internal static Version? GetGlibcLddVersion(string ldd)
     {
