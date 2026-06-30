@@ -97,6 +97,7 @@ namespace JetBrains.HabitatDetector.Impl.MacOsX
 
       var builder = new StringBuilder(version.Major switch
         {
+          27 => "macOS Golden Gate",
           26 => "macOS Tahoe",
           16 or 17 or 18 or 19 or 20 or 21 or 22 or 23 or 24 or 25 => throw new InvalidOperationException($"Invalid macOS major version: {version.Major}"),
           15 => "macOS Sequoia",
