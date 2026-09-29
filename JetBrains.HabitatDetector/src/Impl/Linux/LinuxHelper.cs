@@ -34,7 +34,7 @@ namespace JetBrains.HabitatDetector.Impl.Linux
         throw new FormatException($"Invalid ELF OS ABI identification {elfFile.EiOsAbi} in executable {executable}");
       if (elfFile.EType is not (ET.ET_DYN or ET.ET_EXEC))
         throw new FormatException($"Invalid ELF object file type {elfFile.EType} in executable {executable}");
-      var interpreter = elfFile.Interpreter ?? executable;
+      var interpreter = ElfUtil.GetInterp(elfFile.Programs) ?? executable;
       return new ElfInfo(
         ConvertToLibC(interpreter),
         ConvertToArchitecture(elfFile.EiClass, elfFile.EiData, elfFile.EMachine),
